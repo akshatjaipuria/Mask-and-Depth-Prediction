@@ -111,7 +111,7 @@ class CustomDataset(Dataset):
         return {'i1': i1, 'i2': i2, 'o1': o1}
 
 
-def getdata(root='./data/', batch_size=16):
+def getdata(root='./data/', batch_size=16, num_workers=0):
     train_dataset = CustomDataset(transform_input1=train_i1_transforms(), transform_input2=train_i2_transforms(),
                                   transform_output1=o1_transforms(), root=root)
     valid_dataset = CustomDataset(transform_input1=test_i1_transforms(), transform_input2=test_i2_transforms(),
@@ -142,7 +142,9 @@ def getdata(root='./data/', batch_size=16):
     if cuda:
         torch.cuda.manual_seed(SEED)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=train_sampler, pin_memory=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=valid_sampler, pin_memory=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, sampler=train_sampler, num_workers=num_workers,
+                              pin_memory=True)
+    valid_loader = DataLoader(valid_dataset, batch_size=batch_size, sampler=valid_sampler, num_workers=num_workers,
+                              pin_memory=True)
 
     return train_loader, valid_loader
