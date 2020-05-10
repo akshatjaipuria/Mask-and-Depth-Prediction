@@ -124,6 +124,6 @@ This was created using <a href="https://github.com/ialhashim/DenseDepth/blob/mas
 The output dimensions of dense depth was half of the input and the model didn't work well with smaller images. Due to this reason, I modified the load_image function to accept 500 images at a time and scale them up to 448 x 448 from 224 x 224. This way, the depth model was able to perform well on the inputs as well as we got our desired dimensions of 224 x 224 as output. The code implementation to generate the images is available in this <a href= "https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Depth_Model.ipynb" target="_blank">`Notebook`</a>.
 
 ## Size and Speed Management
-To keed the size of the dataset small, the images were saved in JPG format rather than PNG. Wherever possible, the channels were kept 1 insted of 3. Also, while creating fg_bg and fg_bg_mask, the images were saved with quality as 65% to keep the file size low.
+To keep the size of the dataset small, the images were saved in JPG format rather than PNG. Wherever possible, the channels were kept 1 insted of 3. Also, while creating fg_bg and fg_bg_mask, the images were saved with quality as 65% to keep the file size low.
 
 To achive a good speed while creating data, instead of reading images again and again while creating fg_bg, the copies were made whenever required in the code itself to save read operatin and thus time. Copies of fg amd bg were made on the go.
