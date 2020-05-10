@@ -14,6 +14,22 @@ As a part of the dataset, we have:
 
 Note: Since it wasn't feasible to capture depth maps using depth cameras, they have been created using <a href="https://github.com/ialhashim/DenseDepth/blob/master/DenseDepth.ipynb" target="_blank">`Depth Model`</a>.
 
+## Samples
+> bg
+![bg](Samples/bg.jpg)
+> fg
+![bg](Samples/fg.jpg)
+> fg_mask
+![bg](Samples/fg_mask.jpg)
+> fg_bg
+![bg](Samples/fg_bg.jpg)
+> fg_bg_mask
+![bg](Samples/fg_bg_mask.jpg)
+> fg_bg_depth
+![bg](Samples/fg_bg_depth.jpg)
+
+
+
 ## Link to the dataset
 The data has been divided into three parts and stored in zip format. Zip files are easy to extract and move, since they as considered as single file (rather than multiple images in this case).
 
