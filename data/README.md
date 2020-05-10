@@ -6,8 +6,8 @@ As a part of the dataset, we have:
 | Name | No. of Images | Image dimensions | Description |
 | :--: | :-----------: | :--------------: | :---------: |
 | bg | 100 | 224 x 224 x 3 | Different street scenes, used as background. |
-| fg | 100 | random, 4 channels | Different footballers' images, without any background. | 
-| fg_mask | 100 | random, 1 channel | Mask of each of the foreground image. |
+| fg | 100 | variable, 4 channels | Different footballers' images, without any background. | 
+| fg_mask | 100 | variable, 1 channel | Mask of each of the foreground image. |
 | fg_bg | 400k | 224 x 224 x 3 | Foreground images layed over backgrounds, at random locations. |
 | fg_bg_mask | 400k | 224 x 224 x 1 | Masks, each corresponding to one fg_bg image. |
 | fg_bg_depth | 400k | 224 x 224 x 1 | Depth maps, each corresponding to one fg_bg image. |
