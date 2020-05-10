@@ -4,7 +4,7 @@ The data has been created using just 200 images! Later sections will explain the
 As a part of the dataset, we have:
 
 | Name | No. of Images | Description |
-| :--: | :-----------: | :---------  |
+| :--: | :-----------: | :---------: |
 | bg | 100 | Different street scenes, used as background. |
 | fg | 100 | Different footballers' images, without any background. | 
 | fg_mask | 100 | Mask of each of the foreground image. |
@@ -32,7 +32,19 @@ Note: Since it wasn't feasible to capture depth maps using depth cameras, they h
 The data has been divided into three parts and stored in zip format. Zip files are easy to extract, move or download, since they are considered as a single file (rather than multiple images in this case).
 
 | Content | Size (Approx) | No. of Images | Link |
-| :-----: | :--: | :-----------: | :--  |
+| :-----: | :--: | :-----------: | :--: |
 | bg, fg, fg_mask | 21 MB | 300 | https://drive.google.com/open?id=1eMjj_oWB5jEq4jhd2l4kKE3PL_vf4PZT |
 | fg_bg, fg_bg_mask | 4 GB | 800k | https://drive.google.com/open?id=1TxFhTFP-pUSBtywjshm1sHpPUxmVR7Gc | 
 | fg_bg_depth | 1 GB | 400k | https://drive.google.com/open?id=1CFjwwnY23u2UCzuzZWF03xkEDOhoKBqJ |
+
+## Mean and STD
+You can refer to this <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/mena_std_calculation.ipynb" target="_blank">`Notebook`</a> for the script to calculate the mean and standard deviation of the dataset. PyTorch's Dataloader was used to load images in batches and perform the calculations. Note that the values are for the standardized pixel values, between 0-1.
+
+| Name | No. of Channels | Mean | STD |
+| :--: | :-------------: | :--: | :-: |
+| bg | 3 | [0.5039, 0.5001, 0.4849] | [0.2465, 0.2463, 0.2582] |
+| fg_bg | 3 | [0.5057, 0.4966, 0.4812] | [0.2494, 0.2498, 0.2612] |
+| fg_bg_mask | 1 | [0.0498] | [0.2154] |
+| fg_bg_depth | 1 | [0.4373] | [0.2728] |
+
+## Directory structure
