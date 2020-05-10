@@ -1,5 +1,5 @@
 # About the data
-The data has been created using just 200 images! To keep the memory size of the dataset small, the images have been saved in `.jpg` format rather than `.png`. Later sections will explain the process of creation in detail.
+The data has been created using just 200 images! To keep the size of the dataset small, the images have been saved in `.jpg` format rather than `.png`. Later sections will explain the process of creation in detail.
 ## Contents
 As a part of the dataset, we have:
 
