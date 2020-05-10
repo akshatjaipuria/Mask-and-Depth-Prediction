@@ -49,11 +49,8 @@ You can refer to this <a href="https://github.com/akshatjaipuria/Mask-and-Depth-
 
 ## Directory structure
 The directory structure after extracting the three zip files is as follows:
-| File 1 | File 2 | File 3 |
-| :----: | :----: | :----: |
-|
-<br>
-`
+> File 1
+```
 dataset.
 |
 +---bg
@@ -70,12 +67,9 @@ dataset.
         fg_mask_001.jpg
         ...
         fg_mask_100.jpg
-
-`
-</br>
-|
-<br>
-`
+```
+> File 2
+```
 data.
 |
 +---fg_bg
@@ -93,11 +87,9 @@ data.
     |       img_4000.jpg
     +---...
     \---bg_100
-`
-</br>
-|
-<br>
-`
+```
+> File 3
+```
 fg_bg_depth.
 |
 +---bg_001
@@ -106,6 +98,4 @@ fg_bg_depth.
 |       img_4000.jpg
 +---...
 \---bg_100
-`
-</br>
-|
+```
