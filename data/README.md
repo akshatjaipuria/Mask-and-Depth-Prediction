@@ -1,5 +1,5 @@
 # About the data
-## Contents
+### Contents
 As a part of the dataset, we have:
 
 | Name | No. of Images | Description |
