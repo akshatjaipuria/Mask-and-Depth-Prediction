@@ -1,5 +1,6 @@
 # About the data
-### Contents
+The data has been created using just 200 images! Later sections will explain the process in detail.
+## Contents
 As a part of the dataset, we have:
 
 | Name | No. of Images | Description |
