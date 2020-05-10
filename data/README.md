@@ -28,10 +28,8 @@ Note: Since it wasn't feasible to capture depth maps using depth cameras, they h
 > fg_bg_depth
 ![bg](Samples/fg_bg_depth.jpg)
 
-
-
 ## Link to the dataset
-The data has been divided into three parts and stored in zip format. Zip files are easy to extract and move, since they as considered as single file (rather than multiple images in this case).
+The data has been divided into three parts and stored in zip format. Zip files are easy to extract, move or download, since they are considered as a single file (rather than multiple images in this case).
 
 | Content | Size (Approx) | No. of Images | Link |
 | :-----: | :--: | :-----------: | :--: |
