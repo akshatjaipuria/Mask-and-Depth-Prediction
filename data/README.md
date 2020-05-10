@@ -52,8 +52,8 @@ The directory structure after extracting the three zip files is as follows:
 | File 1 | File 2 | File 3 |
 | :----: | :----: | :----: |
 |
-<div>
-```
+<br>
+`
 dataset.
 |
 +---bg
@@ -71,11 +71,11 @@ dataset.
         ...
         fg_mask_100.jpg
 
-```
-</div>
+`
+</br>
 |
-<p>
-```
+<br>
+`
 data.
 |
 +---fg_bg
@@ -93,11 +93,11 @@ data.
     |       img_4000.jpg
     +---...
     \---bg_100
-```
-</p>
+`
+</br>
 |
-<p>
-```
+<br>
+`
 fg_bg_depth.
 |
 +---bg_001
@@ -106,6 +106,6 @@ fg_bg_depth.
 |       img_4000.jpg
 +---...
 \---bg_100
-```
-</p>
+`
+</br>
 |
