@@ -48,7 +48,7 @@ You can refer to this <a href="https://github.com/akshatjaipuria/Mask-and-Depth-
 | fg_bg_depth | 1 | [0.4373] | [0.2728] |
 
 ## Directory structure
-The directory structure after extracting the three zip files is as follows:
+The directory structures after extracting the three zip files are as follows:
 > File 1
 ```
 dataset.
@@ -99,3 +99,6 @@ fg_bg_depth.
 +---...
 \---bg_100
 ```
+## How were they created?
+### bg
+I collected 100 street images, having dimensions more than 250. These images were then square cropped and saved. They were scaled down to 224 x 224 with the help of simple script using OpenCV function `cv2.resize()`.
