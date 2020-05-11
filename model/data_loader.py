@@ -12,7 +12,7 @@ class train_i1_transforms:
     def __init__(self):
         self.i1_transform = Compose([
             Resize(112, 112),
-            # Normalize(mean=[0.4914, 0.48216, 0.44653], std=[0.24703, 0.24349, 0.26159]),
+            # Normalize(mean=[0.5039, 0.5001, 0.4849], std=[0.24703, 0.24349, 0.26159]),
             ToTensorV2(),
         ])
 
