@@ -32,8 +32,6 @@ class train_model:
 
             if batch_idx % 500 == 0:
                 show_image(output, n_row=4, title='Predicted (Training)')
-                print(output)
-                print(data['o1'])
 
             if batch_idx % 1000 == 0:
                 torch.save(model.state_dict(), self.path / f"{batch_idx}.pth")
