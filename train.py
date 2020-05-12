@@ -39,27 +39,28 @@ class train_model:
             if batch_idx % 1000 == 0:
                 torch.save(model.state_dict(), self.path / f"{batch_idx}.pth")
 
-    def test(self, model, criterion, device, test_loader):
-        model.eval()  # setting model eveluate mode, takes care of batch norm, dropout etc. not required in testing
-        test_loss = 0
+    def validate(self, model, criterion, valid_loader):
+        # setting model evaluate mode, takes care of batch norm, dropout etc. not required while validation
+        model.eval()
+        valid_loss = 0
         correct = 0
         with torch.no_grad():
-            for data in test_loader:
+            for batch_idx, data in enumerate(valid_loader):
                 data['i1'] = data['i1'].to(self.device, dtype=torch.float)
                 data['i2'] = data['i2'].to(self.device, dtype=torch.float)
                 data['o1'] = data['o1'].to(self.device, dtype=torch.float)
                 output = model(data['i1'], data['i2'])
+                loss = criterion(output, data['o1'])
+                valid_loss += loss.view(loss.shape[0], -1).sum(1).mean().item()
+        valid_loss /= len(valid_loader)
+        print("Some predicted samples:")
+        show_image(output.cpu(), n_row=8, title='Predicted (validation)')
+        print("Average Validation loss: ", valid_loss)
 
-                test_loss += criterion(output, data['o1'], reduction='sum').item()
-                pred = output.argmax(dim=1, keepdim=True)
-                # correct += pred.eq(target.view_as(pred)).sum().item()
-
-                show_image(output.cpu(), n_row=4, title='Predicted (validation)')
-        test_loss /= len(test_loader.dataset)
-
-    def run_model(self, model, train_loader, valid_loader, criterion,  lr=0.01, epochs=10):
+    def run_model(self, model, train_loader, valid_loader, criterion, lr=0.01, epochs=10):
 
         optim = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=1e-5)
 
-        for epoch in range(1, epochs+1):
+        for epoch in range(1, epochs + 1):
             self.train(model, criterion, train_loader, optim, epoch)
+            self.validate(model, criterion, valid_loader)
