@@ -18,6 +18,7 @@ class train_model:
             optimizer.zero_grad()  # making gradients 0, so that they are not accumulated over multiple batches
             output = model(data['i1'], data['i2'])
             loss = criterion(output, data['o1'])
+            loss = loss.view(loss.shape[0], -1).sum(1).mean()
             loss.backward()  # calculating gradients
             optimizer.step()  # updating weights
 
@@ -31,7 +32,9 @@ class train_model:
                 # len(dataloader) --> total no of batches, each to specified size like 16
 
             if batch_idx % 500 == 0:
-                show_image(output, n_row=4, title='Predicted (Training)')
+                show_image(output, n_row=8, title='Predicted (Training)')
+                # print(output)
+                # print(data['o1'])
 
             if batch_idx % 1000 == 0:
                 torch.save(model.state_dict(), self.path / f"{batch_idx}.pth")
