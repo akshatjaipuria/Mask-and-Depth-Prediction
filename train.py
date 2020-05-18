@@ -18,7 +18,7 @@ class train_model:
             optimizer.zero_grad()  # making gradients 0, so that they are not accumulated over multiple batches
             output = model(data['i1'], data['i2'])
             loss = criterion(output, data['o1'])
-            loss = loss.view(loss.shape[0], -1).sum(1).mean()
+            # loss = loss.view(loss.shape[0], -1).sum(1).mean()
             loss.backward()  # calculating gradients
             optimizer.step()  # updating weights
 
@@ -51,7 +51,7 @@ class train_model:
                 data['o1'] = data['o1'].to(self.device, dtype=torch.float)
                 output = model(data['i1'], data['i2'])
                 loss = criterion(output, data['o1'])
-                valid_loss += loss.view(loss.shape[0], -1).sum(1).mean().item()
+                valid_loss += loss.item()  # loss.view(loss.shape[0], -1).sum(1).mean().item()
         valid_loss /= len(valid_loader)
         print("Some predicted samples:")
         show_image(output.cpu(), n_row=8, title='Predicted (validation)')

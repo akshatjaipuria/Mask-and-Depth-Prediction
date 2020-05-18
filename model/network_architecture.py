@@ -72,9 +72,9 @@ class OutConv(nn.Module):
         return self.conv(x)
 
 
-class UNet(nn.Module):
+class Net(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=True):
-        super(UNet, self).__init__()
+        super(Net, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
@@ -92,6 +92,7 @@ class UNet(nn.Module):
         self.outc = OutConv(64, n_classes)
 
     def forward(self, input1, input2):
+        threshold = torch.Tensor([0.5])
         x = torch.cat([input1, input2], dim=1)  # 3 x 224 x 224, 3 x 224 x 224 -> 6 x 224 x 224
         x1 = self.inc(x)     # 6 x 224 x 224   -> 64 x 224 x 224
         x2 = self.down1(x1)  # 64 x 224 x 224  -> 128 x 112 x 112
@@ -103,4 +104,5 @@ class UNet(nn.Module):
         x = self.up2(x, x2)    # 128 x 56 x 56, 128 x 112 x 112 -> 64 x 112 x 112
         x = self.up3(x, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
         logits = self.outc(x)  # 64 x 224 x 224, 1/2 x 224 s 224
-        return logits
+        out = ((logits > threshold).float()).to(self.device)
+        return out
