@@ -40,7 +40,7 @@ class Net(nn.Module):
 
         self.convblock6 = nn.Sequential(
             nn.Conv2d(128, 1, 3, stride=1, padding=1, bias=False),
-            # nn.ReLU()
+            nn.sigmoid()
         )
 
     def forward(self, input1, input2):
@@ -51,10 +51,10 @@ class Net(nn.Module):
         x2 = self.convblock2(self.convblock1(x2))
 
         x_1 = (x1 + x2)
-        # x = self.convblock3(x_1)
-        # x = self.convblock4(x)
-        # x = nn.ReLU()(x + x_1)
-        # x = torch.cat([x1, x2], dim=1)
+        x = self.convblock3(x_1)
+        x = self.convblock4(x)
+        x = nn.ReLU()(x + x_1)
+        x = torch.cat([x1, x2], dim=1)
 
         x = self.convblock6(self.convblock5(x))
 

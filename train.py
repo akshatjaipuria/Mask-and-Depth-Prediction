@@ -17,6 +17,7 @@ class train_model:
 
             optimizer.zero_grad()  # making gradients 0, so that they are not accumulated over multiple batches
             output = model(data['i1'], data['i2'])
+            output = torch.tensor((output > 0.5) * 1.0, requires_grad=True)
             loss = criterion(output, data['o1'])
             # loss = loss.view(loss.shape[0], -1).sum(1).mean()
             loss.backward()  # calculating gradients
@@ -50,6 +51,7 @@ class train_model:
                 data['i2'] = data['i2'].to(self.device, dtype=torch.float)
                 data['o1'] = data['o1'].to(self.device, dtype=torch.float)
                 output = model(data['i1'], data['i2'])
+                output = (output > 0.5) * 1.0
                 loss = criterion(output, data['o1'])
                 valid_loss += loss.item()  # loss.view(loss.shape[0], -1).sum(1).mean().item()
         valid_loss /= len(valid_loader)
