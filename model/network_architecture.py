@@ -90,6 +90,8 @@ class Net(nn.Module):
         self.up2 = Up(256, 128 // factor, bilinear)
         self.up3 = Up(128, 64, bilinear)
         self.outc = OutConv(64, n_classes)
+        self.up3_depth = Up(128, 64, bilinear)
+        self.outc_depth = OutConv(64, n_classes)
 
     def forward(self, input1, input2):
         x = torch.cat([input1, input2], dim=1)  # 3 x 224 x 224, 3 x 224 x 224 -> 6 x 224 x 224
@@ -101,6 +103,11 @@ class Net(nn.Module):
         # x = self.up1(x5, x4)
         x = self.up1(x4, x3)   # 256 x 28 x 28, 256 x 56 x 56   -> 128 x 56 x 56
         x = self.up2(x, x2)    # 128 x 56 x 56, 128 x 112 x 112 -> 64 x 112 x 112
-        x = self.up3(x, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
-        logits = self.outc(x)  # 64 x 224 x 224, 1/2 x 224 s 224
-        return logits
+
+        x_mask = self.up3(x, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
+        logits_mask = self.outc(x_mask)  # 64 x 224 x 224, 1/2 x 224 s 224
+
+        # x_depth = self.up3_depth(x, x1)
+        # logits_depth = self.outc_depth(x_depth)
+
+        return logits_mask  # , logits_depth

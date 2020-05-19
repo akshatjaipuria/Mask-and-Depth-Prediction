@@ -4,11 +4,13 @@ from pathlib import Path
 
 
 class train_model:
-    def __init__(self, device):
+    def __init__(self, device, tb=None):
         self.path = Path('./experiments/')
         self.device = device
+        self.globaliter = 0
+        self.tb = tb
 
-    def train(self, model, criterion, train_loader, optimizer, epoch):
+    def train(self, model, criterion, metric, train_loader, optimizer, epoch):
         model.train()
         for batch_idx, data in enumerate(train_loader):
             data['i1'] = data['i1'].to(self.device, dtype=torch.float)
@@ -17,16 +19,20 @@ class train_model:
 
             optimizer.zero_grad()  # making gradients 0, so that they are not accumulated over multiple batches
             output = model(data['i1'], data['i2'])
-            output = torch.tensor((output > 0.5) * 1.0, requires_grad=True)
             loss = criterion(output, data['o1'])
             # loss = loss.view(loss.shape[0], -1).sum(1).mean()
             loss.backward()  # calculating gradients
             optimizer.step()  # updating weights
+            if self.tb:
+                self.tb.save_value('Train Loss', 'train_loss', self.globaliter, loss.item())
 
             if batch_idx % 50 == 0:
-                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+                metric_value = 0
+                if metric:
+                    metric_value = metric(output, data['o1']).cpu().detach().numpy()
+                print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tMetric: {:.6f}'.format(
                     epoch, batch_idx * len(data['i1']), len(train_loader.dataset), 100. * batch_idx / len(train_loader),
-                    loss.item()))
+                    loss.item(), metric_value))
                 print('Batch ID: ', batch_idx)
 
                 # len(dataloader.dataset) --> total number of input images
@@ -51,7 +57,6 @@ class train_model:
                 data['i2'] = data['i2'].to(self.device, dtype=torch.float)
                 data['o1'] = data['o1'].to(self.device, dtype=torch.float)
                 output = model(data['i1'], data['i2'])
-                output = (output > 0.5) * 1.0
                 loss = criterion(output, data['o1'])
                 valid_loss += loss.item()  # loss.view(loss.shape[0], -1).sum(1).mean().item()
         valid_loss /= len(valid_loader)
@@ -59,10 +64,10 @@ class train_model:
         show_image(output.cpu(), n_row=8, title='Predicted (validation)')
         print("Average Validation loss: ", valid_loss)
 
-    def run_model(self, model, train_loader, valid_loader, criterion, lr=0.01, epochs=10):
+    def run_model(self, model, train_loader, valid_loader, criterion, metric=None, lr=0.01, epochs=10):
 
         optim = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=1e-5)
 
         for epoch in range(1, epochs + 1):
-            self.train(model, criterion, train_loader, optim, epoch)
-            self.validate(model, criterion, valid_loader)
+            self.train(model, criterion, metric, train_loader, optim, epoch)
+            self.validate(model, criterion,  valid_loader)
