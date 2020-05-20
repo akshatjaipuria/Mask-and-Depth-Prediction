@@ -47,6 +47,6 @@ class SoftDiceLoss(nn.Module):
         # probs = F.sigmoid(logits)
         num = targets.size(0)  # Number of batches
 
-        score = dice_coeff(probs, targets)
+        score = dice_coeff(logits, targets)
         score = 1 - score.sum() / num
         return score
