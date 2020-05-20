@@ -56,9 +56,9 @@ class train_model:
         metric_value = 0
         with torch.no_grad():
             for batch_idx, data in enumerate(valid_loader):
-                data['i1'] = data['i1'].to(self.device, dtype=torch.float)
-                data['i2'] = data['i2'].to(self.device, dtype=torch.float)
-                data['o1'] = data['o1'].to(self.device, dtype=torch.float)
+                data['i1'] = data['i1'].to(self.device)
+                data['i2'] = data['i2'].to(self.device)
+                data['o1'] = data['o1'].to(self.device)
                 output = model(data['i1'], data['i2'])
                 loss = criterion(output, data['o1'])
                 valid_loss += loss.item()  # loss.view(loss.shape[0], -1).sum(1).mean().item()
