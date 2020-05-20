@@ -44,7 +44,7 @@ class SoftDiceLoss(nn.Module):
         super(SoftDiceLoss, self).__init__()
 
     def forward(self, logits, targets):
-        probs = F.sigmoid(logits)
+        # probs = F.sigmoid(logits)
         num = targets.size(0)  # Number of batches
 
         score = dice_coeff(probs, targets)

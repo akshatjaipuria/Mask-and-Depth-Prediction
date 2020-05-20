@@ -13,9 +13,9 @@ class train_model:
     def train(self, model, criterion, metric, train_loader, optimizer, epoch):
         model.train()
         for batch_idx, data in enumerate(train_loader):
-            data['i1'] = data['i1'].to(self.device, dtype=torch.float)
-            data['i2'] = data['i2'].to(self.device, dtype=torch.float)
-            data['o1'] = data['o1'].to(self.device, dtype=torch.float)
+            data['i1'] = data['i1'].to(self.device)
+            data['i2'] = data['i2'].to(self.device)
+            data['o1'] = data['o1'].to(self.device)
 
             optimizer.zero_grad()  # making gradients 0, so that they are not accumulated over multiple batches
             output = model(data['i1'], data['i2'])
