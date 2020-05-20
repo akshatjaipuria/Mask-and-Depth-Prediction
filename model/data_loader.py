@@ -2,7 +2,7 @@ from torch.utils.data import DataLoader, Dataset
 from PIL import Image
 import torch
 from albumentations import *
-from albumentations.pytorch import ToTensorV2
+from albumentations.pytorch import ToTensorV2, ToTensor
 from torch.utils.data.sampler import SubsetRandomSampler
 import glob
 import numpy as np
@@ -68,7 +68,7 @@ class o1_transforms:
     def __init__(self):
         self.o1_transform = Compose([
             Resize(112, 112),
-            ToTensorV2(),
+            ToTensor(),
         ])
 
     def __call__(self, img):
