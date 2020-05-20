@@ -29,14 +29,14 @@ def model_summary(net, size):
     return device
 
 
-def dice_coeff(pred, target):
+def dice_coeff(pred, targ):
     smooth = 1.
-    num = pred.size(0)
-    m1 = pred.view(num, -1)  # Flatten
-    m2 = target.view(num, -1)  # Flatten
-    intersection = (m1 * m2).sum()
 
-    return (2. * intersection + smooth) / (m1.sum() + m2.sum() + smooth)
+    pflat = pred.view(-1)
+    tflat = targ.view(-1)
+    intersection = (pflat * tflat).sum()
+
+    return (2. * intersection + smooth) / (pflat.sum() + tflat.sum() + smooth)
 
 
 class SoftDiceLoss(nn.Module):
@@ -44,9 +44,24 @@ class SoftDiceLoss(nn.Module):
         super(SoftDiceLoss, self).__init__()
 
     def forward(self, logits, targets):
-        # probs = F.sigmoid(logits)
-        num = targets.size(0)  # Number of batches
-
         score = dice_coeff(logits, targets)
-        score = 1 - score.sum() / num
+        score = 1 - score
         return score
+
+
+def threshold(x, threshold=None):
+    if threshold is not None:
+        return (x > threshold).type(x.dtype)
+    else:
+        return x
+
+
+def iou(pred, targ, threshold, eps=1e-7):
+    pred = threshold(pred, threshold)
+    targ = threshold(targ, threshold)
+
+    pflat = pred.view(-1)
+    tflat = targ.view(-1)
+    intersection = (pflat * tflat).sum()
+
+    return (intersection + eps) / (pflat.sum() + tflat.sum() - intersection + eps)
