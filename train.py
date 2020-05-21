@@ -15,11 +15,12 @@ class train_model:
         for batch_idx, data in enumerate(train_loader):
             data['i1'] = data['i1'].to(self.device)
             data['i2'] = data['i2'].to(self.device)
-            data['o1'] = data['o1'].to(self.device)
+            # data['o1'] = data['o1'].to(self.device)
+            data['o2'] = data['o2'].to(self.device)
 
             optimizer.zero_grad()  # making gradients 0, so that they are not accumulated over multiple batches
             output = model(data['i1'], data['i2'])
-            loss = criterion(output, data['o1'])
+            loss = criterion(output, data['o2'])
             # loss = loss.view(loss.shape[0], -1).sum(1).mean()
             loss.backward()  # calculating gradients
             optimizer.step()  # updating weights
@@ -40,7 +41,7 @@ class train_model:
                 # len(dataloader) --> total no of batches, each to specified size like 16
 
             if batch_idx % 500 == 0:
-                show_image(data['o1'][::4].cpu(), n_row=8, title='Target (Training)')
+                show_image(data['o2'][::4].cpu(), n_row=8, title='Target (Training)')
                 show_image(output[::4].cpu(), n_row=8, title='Predicted (Training)')
                 # print(output)
                 # print(data['o1'])
@@ -58,16 +59,18 @@ class train_model:
             for batch_idx, data in enumerate(valid_loader):
                 data['i1'] = data['i1'].to(self.device)
                 data['i2'] = data['i2'].to(self.device)
-                data['o1'] = data['o1'].to(self.device)
+                # data['o1'] = data['o1'].to(self.device)
+                data['o2'] = data['o2'].to(self.device)
+
                 output = model(data['i1'], data['i2'])
-                loss = criterion(output, data['o1'])
+                loss = criterion(output, data['o2'])
                 valid_loss += loss.item()  # loss.view(loss.shape[0], -1).sum(1).mean().item()
                 if metric:
                     metric_value += metric(output, data['o1']).cpu().detach().numpy()
         metric_value /= len(valid_loader)
         valid_loss /= len(valid_loader)
         print("Some target vs predicted samples:")
-        show_image(data['o1'][::4].cpu(), n_row=8, title='Target (validation)')
+        show_image(data['o2'][::4].cpu(), n_row=8, title='Target (validation)')
         show_image(output[::4].cpu(), n_row=8, title='Predicted (validation)')
         print("Average Validation loss: {}\t Average IOU: {}".format(valid_loss, metric_value))
 

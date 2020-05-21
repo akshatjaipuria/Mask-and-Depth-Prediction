@@ -78,15 +78,31 @@ class o1_transforms:
         return img
 
 
+class o2_transforms:
+    def __init__(self):
+        self.o2_transform = Compose([
+            Resize(112, 112),
+            ToTensor(),
+        ])
+
+    def __call__(self, img):
+        img = np.array(img)
+        img = img[:, :, 0:1]
+        img = self.o2_transform(image=img)['image']
+        return img
+
+
 class CustomDataset(Dataset):
-    def __init__(self, transform_input1=None, transform_input2=None, transform_output1=None, root='./data/',
-                 valid=False):
+    def __init__(self, transform_input1=None, transform_input2=None, transform_output1=None, transform_output2=None,
+                 root='./data/', valid=False):
         self.i1_paths = sorted(glob.glob(root + 'bg/*'))
         self.i2_paths = sorted(glob.glob(root + 'fg_bg/*/*', recursive=True))
-        self.o1_paths = sorted(glob.glob(root + 'fg_bg_mask/*/*', recursive=True))
+        # self.o1_paths = sorted(glob.glob(root + 'fg_bg_mask/*/*', recursive=True))
+        self.o2_paths = sorted(glob.glob(root + 'fg_bg_depth/*/*', recursive=True))
         self.transform_i1 = transform_input1
         self.transform_i2 = transform_input2
-        self.transform_o1 = transform_output1
+        # self.transform_o1 = transform_output1
+        self.transform_o2 = transform_output2
         self.valid = valid
 
     def __len__(self):
@@ -98,23 +114,27 @@ class CustomDataset(Dataset):
         i1_index = int(index / 4000)  # Since same copy of i1 is required for 4000 data items
         i1 = Image.open(self.i1_paths[i1_index])
         i2 = Image.open(self.i2_paths[index])
-        o1 = Image.open(self.o1_paths[index])
+        # o1 = Image.open(self.o1_paths[index])
+        o2 = Image.open(self.o2_paths[index])
 
         if self.transform_i1:
             i1 = self.transform_i1(i1)
         if self.transform_i2:
             i2 = self.transform_i1(i2)
-        if self.transform_o1:
-            o1 = self.transform_o1(o1)
+        # if self.transform_o1:
+        #     o1 = self.transform_o1(o1)
+        if self.transform_o2:
+            o2 = self.transform_o2(o2)
 
-        return {'i1': i1, 'i2': i2, 'o1': o1}
+        return {'i1': i1, 'i2': i2, 'o2': o2}  # {'i1': i1, 'i2': i2, 'o1': o1, 'o2': o2}
 
 
 def getdata(root='./data/', batch_size=16, num_workers=0):
     train_dataset = CustomDataset(transform_input1=train_i1_transforms(), transform_input2=train_i2_transforms(),
-                                  transform_output1=o1_transforms(), root=root)
+                                  transform_output1=o1_transforms(), transform_output2=o2_transforms(), root=root)
     valid_dataset = CustomDataset(transform_input1=test_i1_transforms(), transform_input2=test_i2_transforms(),
-                                  transform_output1=o1_transforms(), root=root, valid=True)
+                                  transform_output1=o1_transforms(), transform_output2=o2_transforms(), root=root,
+                                  valid=True)
 
     validation_split = 0.3
     shuffle_dataset = True
