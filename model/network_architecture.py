@@ -72,17 +72,6 @@ class OutConv(nn.Module):
         return self.conv(x)
 
 
-class OutConv_Depth(nn.Module):
-    def __init__(self, in_channels, out_channels):
-        super(OutConv_Depth, self).__init__()
-        self.conv = nn.Sequential(nn.Conv2d(in_channels, in_channels, kernel_size=3, padding=1),
-                                  nn.Conv2d(in_channels, in_channels//2, kernel_size=3, padding=1),
-                                  nn.Conv2d(in_channels//2, out_channels, kernel_size=1))
-
-    def forward(self, x):
-        return self.conv(x)
-
-
 class Net(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=True):
         super(Net, self).__init__()
@@ -95,14 +84,18 @@ class Net(nn.Module):
         self.down2 = Down(128, 256)
         factor = 2 if bilinear else 1
         self.down3 = Down(256, 512 // factor)
-        # self.down4 = Down(512, 1024 // factor)
-        # self.up1 = Up(1024, 512 // factor, bilinear)
+
+        # decoder for mask
         self.up1 = Up(512, 256 // factor, bilinear)
         self.up2 = Up(256, 128 // factor, bilinear)
         self.up3 = Up(128, 64, bilinear)
         self.outc = OutConv(64, n_classes)
-        self.up3_Depth = Up(128, 128, bilinear)
-        self.outc_Depth = OutConv_Depth(128, n_classes)
+
+        # decoder for depth
+        self.up1_Depth = Up(512, 256 // factor, bilinear)
+        self.up2_Depth = Up(256, 128 // factor, bilinear)
+        self.up3_Depth = Up(128, 64, bilinear)
+        self.outc_Depth = OutConv(64, n_classes)
 
     def forward(self, input1, input2):
         x = torch.cat([input1, input2], dim=1)  # 3 x 224 x 224, 3 x 224 x 224 -> 6 x 224 x 224
@@ -110,15 +103,19 @@ class Net(nn.Module):
         x2 = self.down1(x1)  # 64 x 224 x 224  -> 128 x 112 x 112
         x3 = self.down2(x2)  # 128 x 112 x 112 -> 256 x 56 x 56
         x4 = self.down3(x3)  # 256 x 56 x 56   -> 256 x 28 x 28
-        # x5 = self.down4(x4)
-        # x = self.up1(x5, x4)
-        x = self.up1(x4, x3)   # 256 x 28 x 28, 256 x 56 x 56   -> 128 x 56 x 56
-        x = self.up2(x, x2)    # 128 x 56 x 56, 128 x 112 x 112 -> 64 x 112 x 112
 
-        # x_mask = self.up3(x, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
+        # decoder for mask
+
+        # x_mask = self.up1(x4, x3)   # 256 x 28 x 28, 256 x 56 x 56   -> 128 x 56 x 56
+        # x_mask = self.up2(x_mask, x2)    # 128 x 56 x 56, 128 x 112 x 112 -> 64 x 112 x 112
+        # x_mask = self.up3(x_mask, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
         # logits_mask = self.outc(x_mask)  # 64 x 224 x 224, 1/2 x 224 s 224
 
-        x_depth = self.up3_Depth(x, x1)
+        # decoder for depth
+
+        x_depth = self.up1_Depth(x4, x3)
+        x_depth = self.up2_Depth(x_depth, x2)
+        x_depth = self.up3_Depth(x_depth, x1)
         logits_depth = self.outc_Depth(x_depth)
 
         return logits_depth  # , logits_mask
