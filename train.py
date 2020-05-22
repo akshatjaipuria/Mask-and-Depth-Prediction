@@ -31,7 +31,7 @@ class train_model:
             if batch_idx % 50 == 0:
                 metric_value = 0
                 if metric:
-                    metric_value = metric(output, data['o1']).cpu().detach().numpy()
+                    metric_value = metric(output, data['o2']).cpu().detach().numpy()
                 print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}\tMetric: {:.6f}'.format(
                     epoch, batch_idx * len(data['i1']), len(train_loader.dataset), 100. * batch_idx / len(train_loader),
                     loss.item(), metric_value))
@@ -66,7 +66,7 @@ class train_model:
                 loss = criterion(output, data['o2'])
                 valid_loss += loss.item()  # loss.view(loss.shape[0], -1).sum(1).mean().item()
                 if metric:
-                    metric_value += metric(output, data['o1']).cpu().detach().numpy()
+                    metric_value += metric(output, data['o2']).cpu().detach().numpy()
         metric_value /= len(valid_loader)
         valid_loss /= len(valid_loader)
         print("Some target vs predicted samples:")
