@@ -72,7 +72,7 @@ class train_model:
         print("Some target vs predicted samples:")
         show_image(data['o2'][::4].cpu(), n_row=8, title='Target (validation)')
         show_image(output[::4].cpu(), n_row=8, title='Predicted (validation)')
-        print("Average Validation loss: {}\t Average IOU: {}".format(valid_loss, metric_value))
+        print("Average Validation loss: {}\t Average Metric: {}".format(valid_loss, metric_value))
 
     def run_model(self, model, train_loader, valid_loader, criterion, metric=None, lr=0.01, epochs=10):
 
