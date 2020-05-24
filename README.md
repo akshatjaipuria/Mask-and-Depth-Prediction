@@ -31,7 +31,7 @@ We will unveil the magic slowly.
 ## Data Loader
 The very first step is how we load data to train the model. Since it's a custom dataset, the dataloder had to be written according to my folder structure. The images that are to be loaded include bg, fg_bg, mask and depths. This <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/data_loader.py" target="_blank">`File`</a> can be referred for the code.
 
-On a brief note, I use the PIL library to load the images. We have 100 bg, 400k fg_bg, 400k masks and 400k depth. Onle one bg images corresponds to 4000 images from each of the other categories. Instead of making copies of bg, I decided to play with the index to make that work with 100 images only 😆. The images are in such order that fg_bg, mask and depth from index 0-3999, 4000-7999, 8000-11999 ... correspond to bg at index 0, 1, 2, ... The simple solution is to chnage the bg index as:
+On a brief note, I use the PIL library to load the images. We have 100 bg, 400k fg_bg, 400k masks and 400k depth. Onle one bg images corresponds to 4000 images from each of the other categories. Instead of making copies of bg, I decided to play with the index to make that work with 100 images only 😆. The images are in such order that fg_bg, mask and depth from index 0-3999, 4000-7999, 8000-11999 ... correspond to bg at index 0, 1, 2, ... respectively. A simple solution is to chnage the bg index as:
 ```Python
 bg_index = int(index / 4000)
 ```
@@ -69,7 +69,7 @@ One of the popular Encoder-Decoder Models is <a href="https://arxiv.org/pdf/1505
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/unet.png" width="700">
 </p>
 
-Now, for the model I am using, I have two seperate problems to solve (mask and depth). The image size in the original model was 572x572 and ours is 224x224. Keeping this in mind, the channels' size would become too small at the end of the encoder (as we would be training at 112 before 224) and the fact that if we keep the model size smaller, we would be able to train with larger batch sizes. Also, colab gives limited GPU, so it wasn't good enough to waste resources, I removed one of the encoder and one corresponding decoder layers to have a proper balance over all the constraints.
+Now, for the model I am using, I have two seperate problems to solve (mask and depth). The image size in the original model was 572x572 and ours is 224x224. Keeping this in mind, the channels' size would become too small at the end of the encoder (as we would be training at 112 before 224) and the fact that if we keep the model size smaller, we would be able to train with larger batch sizes. Also, colab gives limited GPU, so it wasn't good enough to waste resources, I removed one of the encoder and one corresponding decoder layers to have a proper balance over all the constraints. And replacement of encoder with SOTA models was demanding a high increment of parameters count. The dataset not being very complex, I went with the default encoder only.
 
 Since we had two seperate output requirements which are very different w.r.t the information they carry, I tried having seperate final decoder layers but that didn't help because mask and depth require same initial information from the images, but what they carry till the end is totally different. Therefor, I made the encoder part common and had seperate decoders for both the outputs. Here is a high level representation of my model.
 
@@ -77,7 +77,7 @@ Since we had two seperate output requirements which are very different w.r.t the
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/my_model.png" width="700">
 </p>
 
-My model contains `~ 6.2 M  (6,242,050) parameters`, of which the encoder part has ~2.2 M parameters and the two decoders have ~2 M parameters each. The code for the model is available <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/network_architecture.py" target="_blank">`here`</a>. The fact that we use 'bilinear' upsampling instead of transpose convolution in decoders haas decreased the parameter count considerably. But we never train the entire 6.2 M parameters at once, how we train in parts will be explained in the coming sections.
+My model contains `~ 6.2 M  (6,242,050) parameters`, of which the encoder part has ~2.2 M parameters and the two decoders have ~2 M parameters each. The code for the model is available <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/network_architecture.py" target="_blank">`here`</a>. The fact that we use 'bilinear' upsampling instead of transpose convolution in decoders has decreased the parameter count considerably. But we never train the entire 6.2 M parameters at once, how we train in parts will be explained in the coming sections.
 
 ## Training
 
