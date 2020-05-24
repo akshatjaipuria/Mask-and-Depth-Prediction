@@ -49,4 +49,14 @@ Next comes the model architecture. Initially, I built some fully convolutional n
 But is this the correct way?
 
 Here are some probable issues:
--
+- It is computationally too expensive to mantain the same clannel dimmension throughout the layers.
+- We need a full resolution output from the model and not just the class activations.
+- This type of model learns the content of the images easily, but what we require is the spatial information (location) to be preserved.
+
+Going through some of the blogs and contents online, I realised that Encoder-Decoder Model is a better and popular approach for this task. You can refer <a href="http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture11.pdf" target="_blank">`this`</a> for a brief overview. In this, we downsample the spatial resolution of the input, developing lower-resolution feature mappings which are learned to be highly efficient at discriminating between classes, and then upsample the feature representations into a full-resolution segmentation map. Same works well for depth maps too.
+
+![cnn_enc_doc](files/cnn_enc_doc.png)
+
+
+
+
