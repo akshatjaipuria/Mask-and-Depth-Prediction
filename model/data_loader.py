@@ -11,7 +11,7 @@ import numpy as np
 class train_i1_transforms:
     def __init__(self):
         self.i1_transform = Compose([
-            Resize(112, 112),
+            Resize(224, 224),
             Normalize(mean=[0.5039, 0.5001, 0.4849], std=[0.2465, 0.2463, 0.2582]),
             ToTensorV2(),
         ])
@@ -25,7 +25,7 @@ class train_i1_transforms:
 class train_i2_transforms:
     def __init__(self):
         self.i2_transform = Compose([
-            Resize(112, 112),
+            Resize(224, 224),
             Normalize(mean=[0.5057, 0.4966, 0.4812], std=[0.2494, 0.2498, 0.2612]),
             ToTensorV2(),
         ])
@@ -39,7 +39,7 @@ class train_i2_transforms:
 class test_i1_transforms:
     def __init__(self):
         self.i1_transform = Compose([
-            Resize(112, 112),
+            Resize(224, 224),
             Normalize(mean=[0.5039, 0.5001, 0.4849], std=[0.2465, 0.2463, 0.2582]),
             ToTensorV2(),
         ])
@@ -53,7 +53,7 @@ class test_i1_transforms:
 class test_i2_transforms:
     def __init__(self):
         self.i2_transform = Compose([
-            Resize(112, 112),
+            Resize(224, 224),
             Normalize(mean=[0.5057, 0.4966, 0.4812], std=[0.2494, 0.2498, 0.2612]),
             ToTensorV2(),
         ])
@@ -67,7 +67,7 @@ class test_i2_transforms:
 class o1_transforms:
     def __init__(self):
         self.o1_transform = Compose([
-            Resize(112, 112),
+            Resize(224, 224),
             ToTensor(),
         ])
 
@@ -81,7 +81,7 @@ class o1_transforms:
 class o2_transforms:
     def __init__(self):
         self.o2_transform = Compose([
-            Resize(112, 112),
+            Resize(224, 224),
             ToTensor(),
         ])
 

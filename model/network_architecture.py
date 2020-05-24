@@ -106,10 +106,10 @@ class Net(nn.Module):
 
         # decoder for mask
 
-        # x_mask = self.up1(x4, x3)   # 256 x 28 x 28, 256 x 56 x 56   -> 128 x 56 x 56
-        # x_mask = self.up2(x_mask, x2)    # 128 x 56 x 56, 128 x 112 x 112 -> 64 x 112 x 112
-        # x_mask = self.up3(x_mask, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
-        # logits_mask = self.outc(x_mask)  # 64 x 224 x 224, 1/2 x 224 s 224
+        x_mask = self.up1(x4, x3)   # 256 x 28 x 28, 256 x 56 x 56   -> 128 x 56 x 56
+        x_mask = self.up2(x_mask, x2)    # 128 x 56 x 56, 128 x 112 x 112 -> 64 x 112 x 112
+        x_mask = self.up3(x_mask, x1)    # 64 x 112 x 112, 64 x 224 x 224  -> 64 x 224 x 224
+        logits_mask = self.outc(x_mask)  # 64 x 224 x 224, 1/2 x 224 s 224
 
         # decoder for depth
 
@@ -118,4 +118,4 @@ class Net(nn.Module):
         x_depth = self.up3_Depth(x_depth, x1)
         logits_depth = self.outc_Depth(x_depth)
 
-        return logits_depth  # , logits_mask
+        return logits_mask, logits_depth

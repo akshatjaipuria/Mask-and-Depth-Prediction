@@ -78,7 +78,8 @@ class train_model:
         optim = torch.optim.SGD(model.parameters(), lr=lr, momentum=0.9, weight_decay=1e-5)
 
         for epoch in range(1, epochs + 1):
-            self.train(model, criterion, metric, train_loader, optim, epoch)
+            if train_loader:
+                self.train(model, criterion, metric, train_loader, optim, epoch)
             if valid_loader:
                 print("Validating.....")
                 self.validate(model, criterion, metric, valid_loader)

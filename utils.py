@@ -3,16 +3,18 @@ import matplotlib.pyplot as plt
 from torchsummary import summary
 import torch
 from torch import nn
+import numpy as np
 
 
-def show_image(inp, n_row=8, title=None):
+def show_image(inp, n_row=8, title=None, mean=None, std=None):
     """Imshow for Tensor."""
     inp = torchvision.utils.make_grid(inp.detach().cpu(), n_row)
     inp = inp.numpy().transpose((1, 2, 0))
-    #     mean = np.array([0.485, 0.456, 0.406])
-    #     std = np.array([0.229, 0.224, 0.225])
-    #     inp = std * inp + mean
-    #     inp = np.clip(inp, 0, 1)
+    if mean:
+        mean = np.array(mean)
+        std = np.array(std)
+        inp = std * inp + mean
+        inp = np.clip(inp, 0, 1)
     plt.figure(figsize=(10, 10))
     plt.imshow(inp)
     plt.axis('off')
@@ -50,3 +52,8 @@ class SoftDiceLoss(nn.Module):
         score = dice_coeff(logits, targets)
         score = 1 - score.sum() / num
         return score
+
+
+def to_numpy(tensor):
+    """tensor -> (B,C,H,W) to numpy array -> (B,H,W,C)"""
+    return np.transpose(tensor.clone().numpy(), (0, 2, 3, 1))
