@@ -2,7 +2,7 @@ import torch
 from utils import show_image
 
 
-class train_model:
+class evaluate_model:
     def __init__(self, device, tb=None):
         self.device = device
 
@@ -44,7 +44,6 @@ class train_model:
                    std=[0.2465, 0.2463, 0.2582])
         show_image(data['i2'][::4].cpu(), n_row=8, title='Input (fg_bg)', mean=[0.5057, 0.4966, 0.4812],
                    std=[0.2494, 0.2498, 0.2612])
-        show_image(data['i2'][::4].cpu(), n_row=8, title='Input (fg_bg)')
         show_image(data['o1'][::4].cpu(), n_row=8, title='Target (Mask)')
         show_image(output_mask[::4].cpu(), n_row=8, title='Predicted (Mask)')
         print("Mask: Average Evaluation loss: {}\t Average Metric: {}".format(valid_loss_mask, metric_value_mask))
