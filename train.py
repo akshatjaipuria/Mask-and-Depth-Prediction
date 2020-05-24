@@ -80,4 +80,6 @@ class train_model:
 
         for epoch in range(1, epochs + 1):
             self.train(model, criterion, metric, train_loader, optim, epoch)
-            self.validate(model, criterion,  metric, valid_loader)
+            if valid_loader:
+                print("Validating.....")
+                self.validate(model, criterion, metric, valid_loader)
