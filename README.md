@@ -24,6 +24,8 @@ My model is supposed to take two images, backgroung(bg) and fg_bg, as inputs at 
 
 ![overview](files/overview.png)
 
+We will unveil the magic slowly.
+
 ## Data Loader
 The very first step is how we load data to train the model. Since it's a custom dataset, the dataloder had to be written according to my folder structure. The images that are to be loaded include bg, fg_bg, mask and depths. This <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/data_loader.py" target="_blank">`File`</a> can be referred for the code.
 
@@ -31,4 +33,20 @@ On a brief note, I use the PIL library to load the images. We have 100 bg, 400k 
 ```Python
 bg_index = int(index / 4000)
 ```
+#### Train set and Validation set
+-Training size: 70% of 400k, i.e. 280k
+-Validation size: 30% of 400k, i.e. 120k
 
+The split is made using simple array slicing (numpy) of the list of paths and seed was set to avoid data mixup in train and validation sets.
+
+To speed up, I used pin memory, num_morkers in dataloader as 4 (this reduced the loading time for each epoch by ~400s on Nvidia P100). Also, to speed up training, I kept the batch size as large as possible, given the GPU capacity.
+
+## Model
+Next comes the model architecture. Initially, I built some fully convolutional networks to experiment. Those were the usual linear CNN architectures, with the sequence of Conv, BN, ReLU repeatedly with some skip connections to get various receptive fields at the end of the model.
+
+![cnn_simple](files/cnn_simple.png)
+
+But is this the correct way?
+
+Here are some probable issues:
+-
