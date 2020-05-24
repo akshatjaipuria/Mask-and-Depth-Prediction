@@ -34,8 +34,8 @@ On a brief note, I use the PIL library to load the images. We have 100 bg, 400k 
 bg_index = int(index / 4000)
 ```
 #### Train set and Validation set
--Training size: 70% of 400k, i.e. 280k
--Validation size: 30% of 400k, i.e. 120k
+- Training size: 70% of 400k, i.e. 280k
+- Validation size: 30% of 400k, i.e. 120k
 
 The split is made using simple array slicing (numpy) of the list of paths and seed was set to avoid data mixup in train and validation sets.
 
