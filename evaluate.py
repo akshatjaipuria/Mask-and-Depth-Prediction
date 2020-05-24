@@ -5,8 +5,6 @@ from utils import show_image
 class train_model:
     def __init__(self, device, tb=None):
         self.device = device
-        self.globaliter = 0
-        self.tb = tb
 
     def evaluate(self, model, data_loader, criterion_mask, criterion_depth, metric_mask, metric_depth):
         # setting model evaluate mode, takes care of batch norm, dropout etc. not required while validation
