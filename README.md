@@ -264,10 +264,13 @@ This is the metric used for depth. Referring to some of the papers, I found that
 Refer <a href="https://towardsdatascience.com/what-does-rmse-really-mean-806b65f2e48e" target="_blank">`this`</a> article for a better understanding of RMSE. This metric denotes the error rate and hence 0 defines the best value.
 
 ## Final Note
-I have divided the code into small modules to keep them simple. The training was done on Colab using these scripts and the notebook is available <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`here`</a>. If you liked the project, do give it a star. Thanks for reading!
+I have divided the code into small modules to keep them simple. The training was done on Colab using these scripts and the notebook is available <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`here`</a>.
 
+<p align="center">
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Qis5-PG6UFAx_66e3d0l3HHZQuF_kJ22?usp=sharing)
- The final model weights can be downloaded from this <a href="https://drive.google.com/file/d/1-BC0riZy-MhIK8dTfn8kqkwaHl9YQLIQ/view?usp=sharing" target="_blank">`Link`</a>.
+</p>
+
+ The final model weights can be downloaded from this <a href="https://drive.google.com/file/d/1-BC0riZy-MhIK8dTfn8kqkwaHl9YQLIQ/view?usp=sharing" target="_blank">`Link`</a>. If you liked the project, do give it a star. Thanks for reading!
 
 ## References
 - <a href="https://www.jeremyjordan.me/semantic-segmentation/https://www.jeremyjordan.me/semantic-segmentation/" target="_blank">An overview of semantic image segmentation.</a>
