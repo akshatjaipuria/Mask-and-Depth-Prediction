@@ -33,9 +33,9 @@ The data has been divided into three parts and stored in zip format. Zip files a
 
 | Content | Size (Approx) | No. of Images | Link |
 | :-----: | :--: | :-----------: | :--: |
-| bg, fg, fg_mask | 21 MB | 300 | https://drive.google.com/open?id=1eMjj_oWB5jEq4jhd2l4kKE3PL_vf4PZT |
-| fg_bg, fg_bg_mask | 4 GB | 800k | https://drive.google.com/open?id=1TxFhTFP-pUSBtywjshm1sHpPUxmVR7Gc | 
-| fg_bg_depth | 1 GB | 400k | https://drive.google.com/open?id=1CFjwwnY23u2UCzuzZWF03xkEDOhoKBqJ |
+| bg, fg, fg_mask | 21 MB | 300 |  <a href="https://drive.google.com/open?id=1eMjj_oWB5jEq4jhd2l4kKE3PL_vf4PZT" target="_blank">Link</a> |
+| fg_bg, fg_bg_mask | 4 GB | 800k | <a href="https://drive.google.com/open?id=1TxFhTFP-pUSBtywjshm1sHpPUxmVR7Gc" target="_blank">Link</a>  | 
+| fg_bg_depth | 1 GB | 400k | <a href="https://drive.google.com/open?id=1CFjwwnY23u2UCzuzZWF03xkEDOhoKBqJ" target="_blank">Link</a> |
 
 ## Mean and STD
 You can refer to this <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/mena_std_calculation.ipynb" target="_blank">`Notebook`</a> for the script to calculate the mean and standard deviation of the dataset. PyTorch's Dataloader was used to load images in batches and perform the calculations. Note that the values are for the standardized pixel values, between 0-1.
