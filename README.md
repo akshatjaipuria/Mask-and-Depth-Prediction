@@ -27,7 +27,7 @@ Depth: Average Evaluation loss(L1 Loss):            0.0595	 Average Metric(RMS E
 Note: The Intersection over Union (IoU) metric, also referred to as the Jaccard index, is essentially a method to quantify the percent overlap between the target mask and our prediction output. So the value of 1 is the best value for IOU whereas RMSE (Root Mean Squared Error) is an error rate, and hence, 0 defines the bast value in this case.
 
 ## Dataset
-The one used in the project is a custom dataset. Please refer <a href = 'https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/tree/master/data#about-the-data'>`this`</a> for details regarding the data creation.
+The one used in the project is a custom dataset that I have created. Please refer <a href = 'https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/tree/master/data#about-the-data'>`this`</a> for details regarding the data creation.
 Some of the samples from the dataset:
 > bg
 ![bg](data/Samples/bg.jpg)
@@ -162,7 +162,7 @@ What we are trying to solve here can be represented as:
 | ![img1](data/Samples/fg_bg/img_0250.jpg) | ![img2](data/Samples/fg_bg_mask/img_0250.jpg) | ![img3](files/segmentation.png) |
 
 ##### BCEWithLogits Loss
-This the the loss function that actually worked out to be the best one among what I tried. The loss convergence was fast enough in the initial epochs. The learning rate plays a vital role, and if not taken care of, would lead to complete black images as output. 
+This is the loss function that actually worked out to be the best one among what I tried. The loss convergence was fast enough in the initial epochs. The learning rate plays a vital role, and if not taken care of, would lead to complete black images as output. 
 
 >The cross entropy loss evaluates the class predictions for each pixel vector individually and then averages over all pixels, we're essentially asserting equal learning to each pixel in the image. This can be a problem if your various classes have unbalanced representation in the image, as training can be dominated by the most prevalent class.
 
@@ -170,7 +170,7 @@ Since we had only onle class, this issue didn't really come up.
 ##### Other Loss Functions
 - Dice Loss: As I read about the loss, it was a good loss function for segmentation but it turned out that the convergence of the loss is too difficult. Sometimes, dice loss gets stuck in a local optima and doesn't converge at all.
 
-- SSIM: This loss didn't work well too over the edges of the masked regions. I tried having mean reduction of each pixel and also a different variant of reduction after the loss was calculated for each pixel to get a scaler value as:
+- SSIM Loss: This loss didn't work well too over the edges of the masked regions. I tried having mean reduction of each pixel and also a different variant of reduction after the loss was calculated for each pixel to get a scaler value as:
 
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/ssim_loss.png" width="350">
@@ -179,9 +179,42 @@ Since we had only onle class, this issue didn't really come up.
 But this loss function didn't work well for the case.
 - L1 Loss: It's a linear pixel wise loss, and wasn't suited for this problem. Reason might be that consider 5% pixels to be of the white region and 95% black. If this classifies all as black, the error rate is still very low of around 5%.
 
+#### 2. For Depth Estimation
+What does it look like?
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_depth/img_0250.jpg" width="150">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/thinking.png" width="150">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/gradient.png" width="150">
+</p>
+
+##### L1 Loss
+It's a criterion that measures the mean absolute error (MAE) between each element in the input and target. This simple regression loss turned out to be most effective experimentally and it also converges fast as compared to other loss functions. The thought was further backed up by the reasoning in this <a href="https://mcarvalho.ml/material/docs/2018/regression_losses_icip_2018.pdf" target="_blank">`paper`.</a>
+> Most subsequent works which base training on pixel-wise regression, simply used standard regression losses like mean absolute (L1) and mean square (L2) to train their networks.
+
+##### Other Loss Functions
+- SSIM Loss: This was potentially one good alternate to L1 loss but the predictions really weren't upto the mark. The network did learn the different intensities in the depth map, but the extreme intensities like complete black or white pixels weren't essentially fixed well by this loss. 
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/ssim_depth.jpg" width="300">
+</p>
+
+- Custom Loss: I tried the loss described in this <a href="https://arxiv.org/pdf/1812.11941.pdf" target="_blank">`paper`</a>, which is basically a combination of L1 + SSIM + Edge Gradients. This worked well too on the depths and the predictions were somewhat similar to that of L1 loss. The reason I didn't use this further was that it's convergence was slower as compared to L1.
+
+- BCEWithLogits Loss: This loss wasn't a good suit for the depth estimation. The predictions didn't resemble the depth maps well.
+
+### Training the Model
+The model has been trained in 2 parts, and each part has been trained in two stages. The encoder part and one of the decoders were trained together for depth and then the concept of Transfer Learning was used to train another decoder for mask only. The reason behind training the encoder with depth was that the depth images require more features as compared to mask and hence training encoder with depth made it learn to extract better features from the inpus as compared to the other way round. I also verified this reasoning experimentally by training the encoder for mask and only the decoder for depth. Even after many epochs, the outputs weren't good as the encoder was incapable of extracting the accountable features from the inputs and the decoder had to work on whatever features were available. This is clearly visible in the outputs below:
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_targ.png" width="500">
+</p>
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_pred.png" width="500">
+</p>
+
+
 ## References
 - <a href="https://www.jeremyjordan.me/semantic-segmentation/https://www.jeremyjordan.me/semantic-segmentation/" target="_blank">An overview of semantic image segmentation.</a>
 - <a href="https://pytorch.org/docs/stable/notes/faq.html" target="_blank">My model reports “cuda runtime error(2): out of memory”.</a>
 - <a href="https://coolnesss.github.io/2019-02-05/pytorch-gotchas" target="_blank">Tips, tricks and gotchas in PyTorch.</a>
 - <a href="https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2" target="_blank">Metrics to Evaluate your Semantic Segmentation Model.</a>
-- 
