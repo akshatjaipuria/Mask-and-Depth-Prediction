@@ -3,7 +3,7 @@ The problem comes under the domain of single class semantic segmentation (mask) 
 
 I will explain every thing in detail but let's look at the results first:
 
-<p float="left">
+<p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/bg.png" width="140" />
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/fg_bg.png" width="140" />
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/target_mask.png" width="140" />
@@ -103,4 +103,85 @@ Since we had two seperate output requirements which are very different w.r.t the
 My model contains `~ 6.2 M  (6,242,050) parameters`, of which the encoder part has ~2.2 M parameters and the two decoders have ~2 M parameters each. The code for the model is available <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/network_architecture.py" target="_blank">`here`</a>. The fact that we use 'bilinear' upsampling instead of transpose convolution in decoders has decreased the parameter count considerably. But we never train the entire 6.2 M parameters at once, how we train in parts will be explained in the coming sections.
 
 ## Training
+This section is dedicated to the gradual understanding of how I trained my model. One of the silly but important mistakes I would like to highligh in the beginning. I am using <a href="https://albumentations.readthedocs.io/en/latest/" target="_blank">`Albumentations`</a> for transformations and for pytorch we need to convet images to Tensors. The ToTensorV2() function availabe dosent change the range of  pixel values 0-255 to 0-1, but ToTensor() does. In my case I was using the ToTensorV2() for mask that lead to bad results since all inputs pixel values were in range 0-1 (as they were being normalized) which I didn't figure out earlier and corrected later to get the expected outputs. That mistake also led to exploding loss values and thus gradients, ultimately leading to NaN. Let's get started.
 
+### Optimization for better performance on GPU
+One of the important parts of training is to take care of the optimization so that the time taken to train can be reduced. We have limited resources available on Google Colab in terms of GPU capacity, processing speed and the time for which we can use the GPU for free. This makes it crutial to optimize the code for efficient use of GPU. The things that have to be taken care of include:
+
+#### 1. GPU Memory usage
+The data we pass are in batches. Its highly recommended to use a maximum batch size that can be handled by GPU at once. This will increase the training speed. In my case, I could use a size of 128, training for images of size 112x112, and 32 when training for images of size 224x224. It's necessary to make a balance between the model parameters, as heavy models will allow lower batch sizes only given the limited GPU memory.
+
+#### 2. Avoiding Memory leaks
+Consider the following code, which has a precise memory leakage point:
+```Python
+avg_loss=0
+for data, target in data_loader:
+  # ...
+  loss = loss_fn(output, target)
+  loss.backward # gradient calculation
+  avg_loss += loss
+  # ...
+avg_loss /= len(data_loader)
+```
+Here, avg_loss is accumulating history across the training loop, since loss is a differentiable variable with autograd history. This can be fixed by writing either `avg_loss += float(loss)` or `avg_loss += loss.item()` instead.
+
+#### 3. Don’t hold onto temporary variables
+If you assign a Tensor or Variable to a local, Python will not deallocate until the local goes out of scope. You can free this reference by using del x. Similarly, if you assign a Tensor or Variable to a member variable of an object, it will not deallocate until the object goes out of scope. You will get the best memory usage if you don’t hold onto temporaries you don’t need.
+
+```Python
+avg_loss=0
+for data, target in data_loader:
+  # ...
+  fn_target = some_fn(target)
+  loss = loss_fn(output, fn_target)
+  loss.backward # gradient calculation
+  avg_loss += loss.item()
+  # ...
+avg_loss /= len(data_loader)
+```
+Here, `fn_target` is alive, even if the loop ends, while avg_loss is being calculated or any operation is being performed. This is because its scope extrudes past the end of the loop. To free it earlier, `del fn_target` is supposed to be used. Either avoid using such variables or delete them after their use.
+
+These are some of the important points to keep in mind. Notice that the more you save memory, the larger batch size can be used and hence faster training. I had timed my <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_timed.py" target="_blank">`training loop`</a> to get a better insight on the behaviour of my code and manage the speed and time accordingly. Following all these, I was able to reduce the train time considerabely.
+
+With a batch size of 128 with input size 112x112, it took 1500s for a complete epoch of train and validation and with a batch size of 32 with input size 224x224, it took 4000s for a complete epoch of train and validation on Nvidia Tesla P100 available on colab. Also, I wanted to print outputs on tensorboard to display and visualize logs and images, but owing to the overhead time it took (Around 1000s extra each epoch), I decided to drop it.
+
+### Augmentation
+Albumentations is a fast and an amazing library for applying transformations in PyTorch. I used this library for trying various augmentation techniques. I tried color jitter, horizontal flip, RGB channel shift and their combinations. I observed that these do help in various problems, but the effictiveness depends on the model as well as the dataset being used. In my case, augmentations didn't contribute much to training and I did not notice a considerable increase in the model's performance. One of the reasons that comes out to be is my train data and validation data comes from the same distribution and the dataset size is large enough. The data is also not very complex, for example, the footballer images are all portrait, they aren't rotated, which could have required the use of rotation augmentation. This helps the model to have proper insight of validation data as well and I hardly noticed any overfitting as the loss and the metric value were highly similar for both the sets. Normalization helped in faster training though and I am using that without any other augmentation technique.
+
+| Un-normalized Inputs | Normalized Inputs |
+| :------------------: | :---------------: |
+| ![input_1](files/input_fg_bg.png) | ![input_2](files/input_fg_bg_normalized.png) |
+
+### Loss Functions
+This section contains the description of the loss functions I tried and their observation.
+#### 1. For Segmentation
+What we are trying to solve here can be represented as:
+
+| Input | Mask | Segmentation |
+| :---: | :--: | :----------: |
+| ![img1](data/Samples/fg_bg/img_0250.jpg) | ![img2](data/Samples/fg_bg_mask/img_0250.jpg) | ![img3](files/segmentation.png) |
+
+##### BCEWithLogits Loss
+This the the loss function that actually worked out to be the best one among what I tried. The loss convergence was fast enough in the initial epochs. The learning rate plays a vital role, and if not taken care of, would lead to complete black images as output. 
+
+>The cross entropy loss evaluates the class predictions for each pixel vector individually and then averages over all pixels, we're essentially asserting equal learning to each pixel in the image. This can be a problem if your various classes have unbalanced representation in the image, as training can be dominated by the most prevalent class.
+
+Since we had only onle class, this issue didn't really come up.
+##### Other Loss Functions
+- Dice Loss: As I read about the loss, it was a good loss function for segmentation but it turned out that the convergence of the loss is too difficult. Sometimes, dice loss gets stuck in a local optima and doesn't converge at all.
+
+- SSIM: This loss didn't work well too over the edges of the masked regions. I tried having mean reduction of each pixel and also a different variant of reduction after the loss was calculated for each pixel to get a scaler value as:
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/ssim_loss.png" width="350">
+</p>
+
+But this loss function didn't work well for the case.
+- L1 Loss: It's a linear pixel wise loss, and wasn't suited for this problem. Reason might be that consider 5% pixels to be of the white region and 95% black. If this classifies all as black, the error rate is still very low of around 5%.
+
+## References
+- <a href="https://www.jeremyjordan.me/semantic-segmentation/https://www.jeremyjordan.me/semantic-segmentation/" target="_blank">An overview of semantic image segmentation.</a>
+- <a href="https://pytorch.org/docs/stable/notes/faq.html" target="_blank">My model reports “cuda runtime error(2): out of memory”.</a>
+- <a href="https://coolnesss.github.io/2019-02-05/pytorch-gotchas" target="_blank">Tips, tricks and gotchas in PyTorch.</a>
+- <a href="https://towardsdatascience.com/metrics-to-evaluate-your-semantic-segmentation-model-6bcb99639aa2" target="_blank">Metrics to Evaluate your Semantic Segmentation Model.</a>
+- 
