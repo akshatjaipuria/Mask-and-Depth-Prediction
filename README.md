@@ -243,6 +243,7 @@ Just as we trained for depth in two stages, for mask also we train in two stages
 </p>
 
 ## Evaluation Metrices
+The code for running the evaluation on the dataset can be referred from <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/evaluate.py" target="_blank">`here`</a>.
 ### Intersection  over Union (IOU)
 This metric has been used to evaluate mask. The Intersection-Over-Union (IoU), also known as the Jaccard Index, is one of the most commonly used metrics in semantic segmentation and for good reason. The IoU is a very straightforward metric that's extremely effective.
 
@@ -252,7 +253,7 @@ This metric has been used to evaluate mask. The Intersection-Over-Union (IoU), a
 
 IoU is the area of overlap between the predicted segmentation and the ground truth divided by the area of union between the predicted segmentation and the ground truth as shown in the image. This metric ranges from 0–1 (0–100%) with 0 signifying no overlap and 1 signifying perfectly overlapping segmentation.
 
-I used the implementation of IOU available in <a href="https://kornia.readthedocs.io/en/latest/" target="_blank">`Kornia`</a> library.
+I used the implementation of IOU available in this python <a href="https://github.com/qubvel/segmentation_models.pytorch" target="_blank">`library`</a>.
 
 ### Root Mean Squared Error (RMSE)
 This is the metric used for depth. Referring to some of the papers, I found that RMSE is a common metric to evaluate the performance of depth predictions.
