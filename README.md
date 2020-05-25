@@ -103,7 +103,7 @@ Since we had two seperate output requirements which are very different w.r.t the
 My model contains `~ 6.2 M  (6,242,050) parameters`, of which the encoder part has ~2.2 M parameters and the two decoders have ~2 M parameters each. The code for the model is available <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/network_architecture.py" target="_blank">`here`</a>. The fact that we use 'bilinear' upsampling instead of transpose convolution in decoders has decreased the parameter count considerably. But we never train the entire 6.2 M parameters at once, how we train in parts will be explained in the coming sections.
 
 ## Training
-This section is dedicated to the gradual understanding of how I trained my model. One of the silly but important mistakes I would like to highligh in the beginning. I am using <a href="https://albumentations.readthedocs.io/en/latest/" target="_blank">`Albumentations`</a> for transformations and for pytorch we need to convet images to Tensors. The ToTensorV2() function availabe dosent change the range of  pixel values 0-255 to 0-1, but ToTensor() does. In my case I was using the ToTensorV2() for mask that lead to bad results since all inputs pixel values were in range 0-1 (as they were being normalized) which I didn't figure out earlier and corrected later to get the expected outputs. That mistake also led to exploding loss values and thus gradients, ultimately leading to NaN. Let's get started.
+This section is dedicated to the gradual understanding of how I trained my model. One of the silly but important mistakes I would like to highlight in the beginning. I am using <a href="https://albumentations.readthedocs.io/en/latest/" target="_blank">`Albumentations`</a> for transformations and for pytorch we need to convet images to Tensors. The ToTensorV2() function availabe dosent change the range of  pixel values 0-255 to 0-1, but ToTensor() does. In my case I was using the ToTensorV2() for mask that lead to bad results since all inputs pixel values were in range 0-1 (as they were being normalized) which I didn't figure out earlier and corrected later to get the expected outputs. That mistake also led to exploding loss values and thus gradients, ultimately leading to NaN. Let's get started.
 
 ### Optimization for better performance on GPU
 One of the important parts of training is to take care of the optimization so that the time taken to train can be reduced. We have limited resources available on Google Colab in terms of GPU capacity, processing speed and the time for which we can use the GPU for free. This makes it crutial to optimize the code for efficient use of GPU. The things that have to be taken care of include:
@@ -203,13 +203,43 @@ It's a criterion that measures the mean absolute error (MAE) between each elemen
 - BCEWithLogits Loss: This loss wasn't a good suit for the depth estimation. The predictions didn't resemble the depth maps well.
 
 ### Training the Model
-The model has been trained in 2 parts, and each part has been trained in two stages. The encoder part and one of the decoders were trained together for depth and then the concept of Transfer Learning was used to train another decoder for mask only. The reason behind training the encoder with depth was that the depth images require more features as compared to mask and hence training encoder with depth made it learn to extract better features from the inpus as compared to the other way round. I also verified this reasoning experimentally by training the encoder for mask and only the decoder for depth. Even after many epochs, the outputs weren't good as the encoder was incapable of extracting the accountable features from the inputs and the decoder had to work on whatever features were available. This is clearly visible in the outputs below:
+The model has been trained in 2 parts, and each part has been trained in two stages. The encoder part and one of the decoders were trained together for depth and then the concept of Transfer Learning was used to train another decoder for mask only. The reason behind training the encoder with depth was that the depth images require more features as compared to mask and hence training encoder with depth made it learn to extract better features from the inputs as compared to the other way round. I also verified this reasoning experimentally by training the encoder for mask and only the decoder for depth. Even after many epochs, the outputs weren't good as the encoder was incapable of extracting the accountable features from the inputs and the decoder had to work on whatever features were available. This is clearly visible in the outputs below:
 
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_targ.png" width="500">
 </p>
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_pred.png" width="500">
+</p>
+
+SGD with Momentum has been used as the optimized for the entire training. The model weights were saved in between the epochs in the colab runtime and at the end of each epoch, were saved to the mounted Google Drive directly to keep the trained weights safe.
+
+#### Training for Depth
+As described earlier, for depth we will be training encolder and one of the decoders, keeping another one frozen. By frozen, I mean that we will keep `required_grad=False` for the parameters we don't want to train. The sript for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_depth.py" target="_blank">`here`</a>. The freezing is done on the go, so you can refer the training <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/" target="_blank">`notebook`</a> for that. 
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/depth_train.png" width="500">
+</p>
+
+To train the network faster, I divided the training into two stages. First, the model was trained with resized input of shape 112x112, which lead to faster training and larger batch size. For 112x112, the model was trained for total 3 epochs, 1 initial epoch with `lr=0.01` and the later 2 epochs with `lr=0.001`. After this, the model was trained for the original input size of 224x224, for another 3 epochs. It was trained for each epoch with lr value of 0.01, 0.001 and 0.0001 respectively in order.
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_trained_depth.png" width="500">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/targ_trained_depth.png" width="500">
+</p>
+
+#### Training for Mask
+For this training, I kept the Encoder and Decoder for depth frozen and trained the seprate decoder for mask, using the concept of Transfer Learning. The model was loaded with the weights saved after the depth training. The sript for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_mask.py" target="_blank">`here`</a>.
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/mask_train.png" width="500">
+</p>
+
+Just as we trained for depth in two stages, for mask also we train in two stages. First, the model was trained with resized input of shape 112x112, which lead to faster training and larger batch size. For 112x112, the model was trained for total 2 epochs, 1 initial epoch with `lr=0.01` and then 1 epoch with `lr=0.001`. After this, the model was trained for the original input size of 224x224, for another 2 epochs, 1 epoch with `lr=0.01` and then 1 epoch with `lr=0.0001`.
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_trained_mask.png" width="500">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/targ_trained_mask.png" width="500">
 </p>
 
 
