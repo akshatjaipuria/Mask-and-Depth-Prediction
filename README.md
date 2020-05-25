@@ -43,7 +43,7 @@ Some of the samples from the dataset:
 ![bg](data/Samples/fg_bg_depth.jpg)
 
 ## What am I supposed to end up with?
-My model is supposed to take two images, backgroung(bg) and fg_bg, as inputs at once. The output should be the mask, which is the segmented footballer in the fg_bg and the depth map of the fg_bg. The images are of dimension 224x224, both for imputs and outputs.
+My model is supposed to take two images, backgroung(bg) and fg_bg, as inputs at once. The output should be the mask, which is the segmented footballer in the fg_bg and the depth map of the fg_bg. The images are of dimension 224x224, both for inputs and outputs.
 
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/overview.png" width="700">
@@ -109,7 +109,7 @@ This section is dedicated to the gradual understanding of how I trained my model
 One of the important parts of training is to take care of the optimization so that the time taken to train can be reduced. We have limited resources available on Google Colab in terms of GPU capacity, processing speed and the time for which we can use the GPU for free. This makes it crutial to optimize the code for efficient use of GPU. The things that have to be taken care of include:
 
 #### 1. GPU Memory usage
-The data we pass are in batches. Its highly recommended to use a maximum batch size that can be handled by GPU at once. This will increase the training speed. In my case, I could use a size of 128, training for images of size 112x112, and 32 when training for images of size 224x224. It's necessary to make a balance between the model parameters, as heavy models will allow lower batch sizes only given the limited GPU memory.
+The data we pass are in batches. Its recommended to use the maximum batch size that can be handled by GPU at once. This will increase the training speed. In my case, I could use a size of 128, training for images of size 112x112, and 32 when training for images of size 224x224. It's necessary to make a balance between the model parameters, as heavy models will allow lower batch sizes only given the limited GPU memory.
 
 #### 2. Avoiding Memory leaks
 Consider the following code, which has a precise memory leakage point:
@@ -146,7 +146,7 @@ These are some of the important points to keep in mind. Notice that the more you
 With a batch size of 128 with input size 112x112, it took 1500s for a complete epoch of train and validation and with a batch size of 32 with input size 224x224, it took 4000s for a complete epoch of train and validation on Nvidia Tesla P100 available on colab. Also, I wanted to print outputs on tensorboard to display and visualize logs and images, but owing to the overhead time it took (Around 1000s extra each epoch), I decided to drop it.
 
 ### Augmentation
-Albumentations is a fast and an amazing library for applying transformations in PyTorch. I used this library for trying various augmentation techniques. I tried color jitter, horizontal flip, RGB channel shift and their combinations. I observed that these do help in various problems, but the effictiveness depends on the model as well as the dataset being used. In my case, augmentations didn't contribute much to training and I did not notice a considerable increase in the model's performance. One of the reasons that comes out to be is my train data and validation data comes from the same distribution and the dataset size is large enough. The data is also not very complex, for example, the footballer images are all portrait, they aren't rotated, which could have required the use of rotation augmentation. This helps the model to have proper insight of validation data as well and I hardly noticed any overfitting as the loss and the metric value were highly similar for both the sets. Normalization helped in faster training though and I am using that without any other augmentation technique.
+Albumentations is a fast and an amazing library for applying transformations in PyTorch. I used this library for trying various augmentation techniques. I tried color jitter, horizontal flip, RGB channel shift and their combinations. I observed that these do help in various problems, but the effictiveness depends on the model as well as the dataset being used. In my case, augmentations didn't contribute much to training and I did not notice a considerable increase in the model's performance. One of the reasons that comes out to be is my train data and validation data comes from the same distribution and the dataset size is large enough. The data is also not very complex, for example, the footballer images are all portrait, they aren't rotated, which could have required the use of rotation augmentation. Thus, the model has a proper insight of validation data as well and I hardly noticed any overfitting as the loss and the metric values were almost similar for both the sets. Normalization helped in faster loss convergence though and I am using that without any other augmentation technique.
 
 | Un-normalized Inputs | Normalized Inputs |
 | :------------------: | :---------------: |
@@ -212,10 +212,10 @@ The model has been trained in 2 parts, and each part has been trained in two sta
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_pred.png" width="500">
 </p>
 
-SGD with Momentum has been used as the optimized for the entire training. The model weights were saved in between the epochs in the colab runtime and at the end of each epoch, were saved to the mounted Google Drive directly to keep the trained weights safe.
+SGD with Momentum has been used as the optimizer for the entire training. The model weights were saved in between the epochs in the colab runtime and at the end of each epoch, were saved to the mounted Google Drive directly to keep the trained weights safe.
 
 #### Training for Depth
-As described earlier, for depth we will be training encolder and one of the decoders, keeping another one frozen. By frozen, I mean that we will keep `required_grad=False` for the parameters we don't want to train. The sript for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_depth.py" target="_blank">`here`</a>. The freezing is done on the go, so you can refer the training <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`notebook`</a> for that. 
+As described earlier, for depth, I trained encoder and one of the decoders, keeping another one frozen. By frozen, I mean that we keep `required_grad=False` for the parameters we don't want to train. The script for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_depth.py" target="_blank">`here`</a>. The freezing is done on the go, so you can refer the training <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`notebook`</a> for that. 
 
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/depth_train.png" width="500">
@@ -229,7 +229,7 @@ To train the network faster, I divided the training into two stages. First, the 
 </p>
 
 #### Training for Mask
-For this training, I kept the Encoder and Decoder for depth frozen and trained the seprate decoder for mask, using the concept of Transfer Learning. The model was loaded with the weights saved after the depth training. The sript for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_mask.py" target="_blank">`here`</a>.
+For this training, I kept the Encoder and Decoder for depth frozen and trained the seprate decoder for mask, using the concept of Transfer Learning. The model was loaded with the weights saved after the depth training. The script for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_mask.py" target="_blank">`here`</a>.
 
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/mask_train.png" width="500">
