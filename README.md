@@ -266,9 +266,7 @@ Refer <a href="https://towardsdatascience.com/what-does-rmse-really-mean-806b65f
 ## Final Note
 I have divided the code into small modules to keep them simple. The training was done on Colab using these scripts and the notebook is available <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`here`</a>.
 
-<p align="center">
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Qis5-PG6UFAx_66e3d0l3HHZQuF_kJ22?usp=sharing)
-</p>
 
  The final model weights can be downloaded from this <a href="https://drive.google.com/file/d/1-BC0riZy-MhIK8dTfn8kqkwaHl9YQLIQ/view?usp=sharing" target="_blank">`Link`</a>. If you liked the project, do give it a star. Thanks for reading!
 
