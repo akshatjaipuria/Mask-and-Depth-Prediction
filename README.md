@@ -215,7 +215,7 @@ The model has been trained in 2 parts, and each part has been trained in two sta
 SGD with Momentum has been used as the optimized for the entire training. The model weights were saved in between the epochs in the colab runtime and at the end of each epoch, were saved to the mounted Google Drive directly to keep the trained weights safe.
 
 #### Training for Depth
-As described earlier, for depth we will be training encolder and one of the decoders, keeping another one frozen. By frozen, I mean that we will keep `required_grad=False` for the parameters we don't want to train. The sript for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_depth.py" target="_blank">`here`</a>. The freezing is done on the go, so you can refer the training <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/" target="_blank">`notebook`</a> for that. 
+As described earlier, for depth we will be training encolder and one of the decoders, keeping another one frozen. By frozen, I mean that we will keep `required_grad=False` for the parameters we don't want to train. The sript for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_depth.py" target="_blank">`here`</a>. The freezing is done on the go, so you can refer the training <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`notebook`</a> for that. 
 
 <p align="center">
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/depth_train.png" width="500">
@@ -242,6 +242,29 @@ Just as we trained for depth in two stages, for mask also we train in two stages
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/targ_trained_mask.png" width="500">
 </p>
 
+## Evaluation Metrices
+### Intersection  over Union (IOU)
+This metric has been used to evaluate mask. The Intersection-Over-Union (IoU), also known as the Jaccard Index, is one of the most commonly used metrics in semantic segmentation and for good reason. The IoU is a very straightforward metric that's extremely effective.
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/iou.png" width="200">
+</p>
+
+IoU is the area of overlap between the predicted segmentation and the ground truth divided by the area of union between the predicted segmentation and the ground truth as shown in the image. This metric ranges from 0–1 (0–100%) with 0 signifying no overlap and 1 signifying perfectly overlapping segmentation.
+
+I used the implementation of IOU available in <a href="https://kornia.readthedocs.io/en/latest/" target="_blank">`Kornia`</a> library.
+
+### Root Mean Squared Error (RMSE)
+This is the metric used for depth. Referring to some of the papers, I found that RMSE is a common metric to evaluate the performance of depth predictions.
+
+<p align="center">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/rmse.png" width="200">
+</p>
+
+Refer <a href="https://towardsdatascience.com/what-does-rmse-really-mean-806b65f2e48e" target="_blank">`this`</a> article for a better understanding of RMSE. This metric denotes the error rate and hence 0 defines the best value.
+
+## Final Note
+I have divided the code into small modules to keep them simple. The training was done on Colab using these scripts and the notebook is available <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`here`</a>. If you liked the project, do give it a star. Thanks for reading!
 
 ## References
 - <a href="https://www.jeremyjordan.me/semantic-segmentation/https://www.jeremyjordan.me/semantic-segmentation/" target="_blank">An overview of semantic image segmentation.</a>
