@@ -12,6 +12,20 @@ I will explain every thing in detail but let's look at the results first:
   <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_depth.png" width="140" />
 </p>
 
+```
+On Train set:
+Mask:  Average Evaluation loss(BCEWithLogits Loss): 0.0106	 Average Metric(IOU):       0.9369
+Depth: Average Evaluation loss(L1 Loss):            0.0592	 Average Metric(RMS Error): 0.8572
+```
+
+```
+On Validation set: 
+Mask:  Average Evaluation loss(BCEWithLogits Loss): 0.0106	 Average Metric(IOU):       0.9368
+Depth: Average Evaluation loss(L1 Loss):            0.0595	 Average Metric(RMS Error): 0.8616
+```
+
+Note: The Intersection over Union (IoU) metric, also referred to as the Jaccard index, is essentially a method to quantify the percent overlap between the target mask and our prediction output. So the value of 1 is the best value for IOU whereas RMSE (Root Mean Squared Error) is an error rate, and hence, 0 defines the bast value in this case.
+
 ## Dataset
 The one used in the project is a custom dataset. Please refer <a href = 'https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/tree/master/data#about-the-data'>`this`</a> for details regarding the data creation.
 Some of the samples from the dataset:
