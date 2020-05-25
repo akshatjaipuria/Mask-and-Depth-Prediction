@@ -3,6 +3,15 @@ The problem comes under the domain of single class semantic segmentation (mask) 
 
 I will explain every thing in detail but let's look at the results first:
 
+<p float="left">
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/bg.png" width="140" />
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/fg_bg.png" width="140" />
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/target_mask.png" width="140" />
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_mask.png" width="140" />
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/target_depth.png" width="140" />
+  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_depth.png" width="140" />
+</p>
+
 ## Dataset
 The one used in the project is a custom dataset. Please refer <a href = 'https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/tree/master/data#about-the-data'>`this`</a> for details regarding the data creation.
 Some of the samples from the dataset:
