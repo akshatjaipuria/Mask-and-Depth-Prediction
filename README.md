@@ -263,6 +263,8 @@ This is the metric used for depth. Referring to some of the papers, I found that
 
 Refer <a href="https://towardsdatascience.com/what-does-rmse-really-mean-806b65f2e48e" target="_blank">`this`</a> article for a better understanding of RMSE. This metric denotes the error rate and hence 0 defines the best value.
 
+ Implementation of RMSE can be found in this <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/losses.py" target="_blank">`script`</a>.
+
 ## Final Note
 I have divided the code into small modules to keep them simple. The training was done on Colab using these scripts and the notebook is available <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`here`</a>.
 
