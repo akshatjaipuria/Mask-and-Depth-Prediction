@@ -30,17 +30,17 @@ Note: The Intersection over Union (IoU) metric, also referred to as the Jaccard 
 The one used in the project is a custom dataset that I have created. Please refer <a href = 'https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/tree/master/data#about-the-data'>`this`</a> for details regarding the data creation.
 Some of the samples from the dataset:
 > bg
-![bg](data/Samples/bg.jpg)
+![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/bg.jpg)
 > fg
-![bg](data/Samples/fg.jpg)
+![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg.jpg)
 > fg_mask
-![bg](data/Samples/fg_mask.jpg)
+![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_mask.jpg)
 > fg_bg
-![bg](data/Samples/fg_bg.jpg)
+![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg.jpg)
 > fg_bg_mask
-![bg](data/Samples/fg_bg_mask.jpg)
+![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_mask.jpg)
 > fg_bg_depth
-![bg](data/Samples/fg_bg_depth.jpg)
+![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_depth.jpg)
 
 ## What am I supposed to end up with?
 My model is supposed to take two images, backgroung(bg) and fg_bg, as inputs at once. The output should be the mask, which is the segmented footballer in the fg_bg and the depth map of the fg_bg. The images are of dimension 224x224, both for inputs and outputs.
@@ -150,7 +150,7 @@ Albumentations is a fast and an amazing library for applying transformations in 
 
 | Un-normalized Inputs | Normalized Inputs |
 | :------------------: | :---------------: |
-| ![input_1](files/input_fg_bg.png) | ![input_2](files/input_fg_bg_normalized.png) |
+| ![input_1](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/input_fg_bg.png) | ![input_2](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/input_fg_bg_normalized.png) |
 
 ### Loss Functions
 This section contains the description of the loss functions I tried and their observation.
@@ -159,7 +159,7 @@ What we are trying to solve here can be represented as:
 
 | Input | Mask | Segmentation |
 | :---: | :--: | :----------: |
-| ![img1](data/Samples/fg_bg/img_0250.jpg) | ![img2](data/Samples/fg_bg_mask/img_0250.jpg) | ![img3](files/segmentation.png) |
+| ![img1](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg/img_0250.jpg) | ![img2](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_mask/img_0250.jpg) | ![img3](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/segmentation.png) |
 
 ##### BCEWithLogits Loss
 This is the loss function that actually worked out to be the best one among what I tried. The loss convergence was fast enough in the initial epochs. The learning rate plays a vital role, and if not taken care of, would lead to complete black images as output. 
