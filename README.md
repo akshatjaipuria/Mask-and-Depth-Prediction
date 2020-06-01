@@ -4,12 +4,12 @@ The problem comes under the domain of single class semantic segmentation (mask) 
 I will explain every thing in detail but let's look at the results first:
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/bg.png" width="140" />
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/fg_bg.png" width="140" />
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/target_mask.png" width="140" />
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_mask.png" width="140" />
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/target_depth.png" width="140" />
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_depth.png" width="140" />
+  <img src="files/bg.png" width="140" />
+  <img src="files/fg_bg.png" width="140" />
+  <img src="files/target_mask.png" width="140" />
+  <img src="files/pred_mask.png" width="140" />
+  <img src="files/target_depth.png" width="140" />
+  <img src="files/pred_depth.png" width="140" />
 </p>
 
 ```
