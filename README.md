@@ -4,12 +4,12 @@ The problem comes under the domain of single class semantic segmentation (mask) 
 I will explain every thing in detail but let's look at the results first:
 
 <p align="center">
-  <img src="files/bg.png" width="140" />
-  <img src="files/fg_bg.png" width="140" />
-  <img src="files/target_mask.png" width="140" />
-  <img src="files/pred_mask.png" width="140" />
-  <img src="files/target_depth.png" width="140" />
-  <img src="files/pred_depth.png" width="140" />
+  <img src="files/bg.png" width="135" />
+  <img src="files/fg_bg.png" width="135" />
+  <img src="files/target_mask.png" width="135" />
+  <img src="files/pred_mask.png" width="135" />
+  <img src="files/target_depth.png" width="135" />
+  <img src="files/pred_depth.png" width="135" />
 </p>
 
 ```
@@ -32,21 +32,21 @@ Some of the samples from the dataset:
 > bg
 ![bg](data/Samples/bg.jpg)
 > fg
-![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg.jpg)
+![bg](data/Samples/fg.jpg)
 > fg_mask
-![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_mask.jpg)
+![bg](data/Samples/fg_mask.jpg)
 > fg_bg
-![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg.jpg)
+![bg](data/Samples/fg_bg.jpg)
 > fg_bg_mask
-![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_mask.jpg)
+![bg](data/Samples/fg_bg_mask.jpg)
 > fg_bg_depth
-![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_depth.jpg)
+![bg](data/Samples/fg_bg_depth.jpg)
 
 ## What am I supposed to end up with?
 My model is supposed to take two images, backgroung(bg) and fg_bg, as inputs at once. The output should be the mask, which is the segmented footballer in the fg_bg and the depth map of the fg_bg. The images are of dimension 224x224, both for inputs and outputs.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/overview.png" width="700">
+  <img src="files/overview.png" width="700">
 </p>
 
 We will unveil the magic slowly.
@@ -70,7 +70,7 @@ To speed up, I used pin memory, num_morkers in dataloader as 4 (this reduced the
 Next comes the model architecture. Initially, I built some fully convolutional networks to experiment. Those were the usual linear CNN architectures, with the sequence of Conv, BN, ReLU repeatedly with some skip connections to get various receptive fields at the end of the model.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/cnn_simple.png" width="700">
+  <img src="files/cnn_simple.png" width="700">
 </p>
 
 But is this the correct way?
@@ -83,13 +83,13 @@ Here are some probable issues:
 Going through some of the blogs and contents online, I realised that Encoder-Decoder Model is a better and popular approach for this task. You can refer <a href="http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture11.pdf" target="_blank">`this`</a> for a brief overview. In this, we downsample the spatial resolution of the input, developing lower-resolution feature mappings which are learned to be highly efficient at discriminating between classes, and then upsample the feature representations into a full-resolution segmentation map. Same works well for depth maps too.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/cnn_enc_doc.png" width="700">
+  <img src="files/cnn_enc_doc.png" width="700">
 </p>
 
 One of the popular Encoder-Decoder Models is <a href="https://arxiv.org/pdf/1505.04597.pdf" target="_blank">`UNet`</a>. It has been improved over time with BN and an alternate upsampling (using 'bilinear' instead of Transpose Convolution). The image below presents the original architecture. But the <a href="https://github.com/qubvel/segmentation_models.pytorch#encoders-" target="_blank">`Encoder`</a> can be replaced with the State of the art models to achieve better results, which also depends on the complexity of the dataset.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/unet.png" width="700">
+  <img src="files/unet.png" width="700">
 </p>
 
 Now, for the model I am using, I have two seperate problems to solve (mask and depth). The image size in the original model was 572x572 and ours is 224x224. Keeping this in mind, the channels' size would become too small at the end of the encoder (as we would be training at 112 before 224) and the fact that if we keep the model size smaller, we would be able to train with larger batch sizes. Also, colab gives limited GPU, so it wasn't good enough to waste resources, I removed one of the encoder and one corresponding decoder layers to have a proper balance over all the constraints. And replacement of encoder with SOTA models was demanding a high increment of parameters count. The dataset not being very complex, I went with the default encoder only.
@@ -97,7 +97,7 @@ Now, for the model I am using, I have two seperate problems to solve (mask and d
 Since we had two seperate output requirements which are very different w.r.t the information they carry, I tried having seperate final decoder layers but that didn't help because mask and depth require same initial information from the images, but what they carry till the end is totally different. Therefor, I made the encoder part common and had seperate decoders for both the outputs. Here is a high level representation of my model.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/my_model.png" width="700">
+  <img src="files/my_model.png" width="700">
 </p>
 
 My model contains `~ 6.2 M  (6,242,050) parameters`, of which the encoder part has ~2.2 M parameters and the two decoders have ~2 M parameters each. The code for the model is available <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/model/network_architecture.py" target="_blank">`here`</a>. The fact that we use 'bilinear' upsampling instead of transpose convolution in decoders has decreased the parameter count considerably. But we never train the entire 6.2 M parameters at once, how we train in parts will be explained in the coming sections.
@@ -150,7 +150,7 @@ Albumentations is a fast and an amazing library for applying transformations in 
 
 | Un-normalized Inputs | Normalized Inputs |
 | :------------------: | :---------------: |
-| ![input_1](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/input_fg_bg.png) | ![input_2](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/input_fg_bg_normalized.png) |
+| ![input_1](files/input_fg_bg.png) | ![input_2](files/input_fg_bg_normalized.png) |
 
 ### Loss Functions
 This section contains the description of the loss functions I tried and their observation.
@@ -159,7 +159,7 @@ What we are trying to solve here can be represented as:
 
 | Input | Mask | Segmentation |
 | :---: | :--: | :----------: |
-| ![img1](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg/img_0250.jpg) | ![img2](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_mask/img_0250.jpg) | ![img3](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/segmentation.png) |
+| ![img1](data/Samples/fg_bg/img_0250.jpg) | ![img2](data/Samples/fg_bg_mask/img_0250.jpg) | ![img3](files/segmentation.png) |
 
 ##### BCEWithLogits Loss
 This is the loss function that actually worked out to be the best one among what I tried. The loss convergence was fast enough in the initial epochs. The learning rate plays a vital role, and if not taken care of, would lead to complete black images as output. 
@@ -173,7 +173,7 @@ Since we had only onle class, this issue didn't really come up.
 - SSIM Loss: This loss didn't work well too over the edges of the masked regions. I tried having mean reduction of each pixel and also a different variant of reduction after the loss was calculated for each pixel to get a scaler value as:
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/ssim_loss.png" width="350">
+  <img src="files/ssim_loss.png" width="350">
 </p>
 
 But this loss function didn't work well for the case.
@@ -182,9 +182,9 @@ But this loss function didn't work well for the case.
 #### 2. For Depth Estimation
 What does it look like?
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg_bg_depth/img_0250.jpg" width="150">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/thinking.png" width="150">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/gradient.png" width="150">
+  <img src="data/Samples/fg_bg_depth/img_0250.jpg" width="150">
+  <img src="files/thinking.png" width="150">
+  <img src="files/gradient.png" width="150">
 </p>
 
 ##### L1 Loss
@@ -195,7 +195,7 @@ It's a criterion that measures the mean absolute error (MAE) between each elemen
 - SSIM Loss: This was potentially one good alternate to L1 loss but the predictions really weren't upto the mark. The network did learn the different intensities in the depth map, but the extreme intensities like complete black or white pixels weren't essentially fixed well by this loss. 
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/ssim_depth.jpg" width="300">
+  <img src="files/ssim_depth.jpg" width="300">
 </p>
 
 - Custom Loss: I tried the loss described in this <a href="https://arxiv.org/pdf/1812.11941.pdf" target="_blank">`paper`</a>, which is basically a combination of L1 + SSIM + Edge Gradients. This worked well too on the depths and the predictions were somewhat similar to that of L1 loss. The reason I didn't use this further was that it's convergence was slower as compared to L1.
@@ -206,10 +206,10 @@ It's a criterion that measures the mean absolute error (MAE) between each elemen
 The model has been trained in 2 parts, and each part has been trained in two stages. The encoder part and one of the decoders were trained together for depth and then the concept of Transfer Learning was used to train another decoder for mask only. The reason behind training the encoder with depth was that the depth images require more features as compared to mask and hence training encoder with depth made it learn to extract better features from the inputs as compared to the other way round. I also verified this reasoning experimentally by training the encoder for mask and only the decoder for depth. Even after many epochs, the outputs weren't good as the encoder was incapable of extracting the accountable features from the inputs and the decoder had to work on whatever features were available. This is clearly visible in the outputs below:
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_targ.png" width="500">
+  <img src="files/img_depth_targ.png" width="500">
 </p>
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/img_depth_pred.png" width="500">
+  <img src="files/img_depth_pred.png" width="500">
 </p>
 
 SGD with Momentum has been used as the optimizer for the entire training. The model weights were saved in between the epochs in the colab runtime and at the end of each epoch, were saved to the mounted Google Drive directly to keep the trained weights safe.
@@ -218,28 +218,28 @@ SGD with Momentum has been used as the optimizer for the entire training. The mo
 As described earlier, for depth, I trained encoder and one of the decoders, keeping another one frozen. By frozen, I mean that we keep `required_grad=False` for the parameters we don't want to train. The script for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_depth.py" target="_blank">`here`</a>. The freezing is done on the go, so you can refer the training <a href="https://githubtocolab.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/mask_and_depth_estimation.ipynb" target="_blank">`notebook`</a> for that. 
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/depth_train.png" width="500">
+  <img src="files/depth_train.png" width="500">
 </p>
 
 To train the network faster, I divided the training into two stages. First, the model was trained with resized input of shape 112x112, which lead to faster training and larger batch size. For 112x112, the model was trained for total 3 epochs, 1 initial epoch with `lr=0.01` and the later 2 epochs with `lr=0.001`. After this, the model was trained for the original input size of 224x224, for another 3 epochs. It was trained for each epoch with lr value of 0.01, 0.001 and 0.0001 respectively in order.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_trained_depth.png" width="500">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/targ_trained_depth.png" width="500">
+  <img src="files/pred_trained_depth.png" width="500">
+  <img src="files/targ_trained_depth.png" width="500">
 </p>
 
 #### Training for Mask
 For this training, I kept the Encoder and Decoder for depth frozen and trained the seprate decoder for mask, using the concept of Transfer Learning. The model was loaded with the weights saved after the depth training. The script for training can be referred <a href="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/train_mask.py" target="_blank">`here`</a>.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/mask_train.png" width="500">
+  <img src="files/mask_train.png" width="500">
 </p>
 
 Just as we trained for depth in two stages, for mask also we train in two stages. First, the model was trained with resized input of shape 112x112, which lead to faster training and larger batch size. For 112x112, the model was trained for total 2 epochs, 1 initial epoch with `lr=0.01` and then 1 epoch with `lr=0.001`. After this, the model was trained for the original input size of 224x224, for another 2 epochs, 1 epoch with `lr=0.01` and then 1 epoch with `lr=0.0001`.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/pred_trained_mask.png" width="500">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/targ_trained_mask.png" width="500">
+  <img src="files/pred_trained_mask.png" width="500">
+  <img src="files/targ_trained_mask.png" width="500">
 </p>
 
 ## Evaluation Metrices
@@ -248,7 +248,7 @@ The code for running the evaluation on the dataset can be referred from <a href=
 This metric has been used to evaluate mask. The Intersection-Over-Union (IoU), also known as the Jaccard Index, is one of the most commonly used metrics in semantic segmentation and for good reason. The IoU is a very straightforward metric that's extremely effective.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/iou.png" width="200">
+  <img src="files/iou.png" width="200">
 </p>
 
 IoU is the area of overlap between the predicted segmentation and the ground truth divided by the area of union between the predicted segmentation and the ground truth as shown in the image. This metric ranges from 0–1 (0–100%) with 0 signifying no overlap and 1 signifying perfectly overlapping segmentation.
@@ -259,7 +259,7 @@ I used the implementation of IOU available in this python <a href="https://githu
 This is the metric used for depth. Referring to some of the papers, I found that RMSE is a common metric to evaluate the performance of depth predictions.
 
 <p align="center">
-  <img src="https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/files/rmse.png" width="200">
+  <img src="files/rmse.png" width="200">
 </p>
 
 Refer <a href="https://towardsdatascience.com/what-does-rmse-really-mean-806b65f2e48e" target="_blank">`this`</a> article for a better understanding of RMSE. This metric denotes the error rate and hence 0 defines the best value.
