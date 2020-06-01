@@ -7,7 +7,7 @@ I will explain every thing in detail but let's look at the results first:
   <img src="files/bg.png" width="130" />
   <img src="files/fg_bg.png" width="130" />
   <img src="files/target_mask.png" width="130" />
-  <img src="files/pred_mask.png" width="135" />
+  <img src="files/pred_mask.png" width="130" />
   <img src="files/target_depth.png" width="130" />
   <img src="files/pred_depth.png" width="130" />
 </p>
