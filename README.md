@@ -30,7 +30,7 @@ Note: The Intersection over Union (IoU) metric, also referred to as the Jaccard 
 The one used in the project is a custom dataset that I have created. Please refer <a href = 'https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/tree/master/data#about-the-data'>`this`</a> for details regarding the data creation.
 Some of the samples from the dataset:
 > bg
-![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/bg.jpg)
+![bg](data/Samples/bg.jpg)
 > fg
 ![bg](https://github.com/akshatjaipuria/Mask-and-Depth-Prediction/blob/master/data/Samples/fg.jpg)
 > fg_mask
